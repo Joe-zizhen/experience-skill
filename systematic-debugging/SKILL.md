@@ -19,6 +19,8 @@ NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
 
 If you haven't completed Phase 1, you cannot propose fixes.
 
+**Stop-loss is not a fix (active-incident exception).** In a live production incident, reversible mitigations — rollback, flag off, traffic shift, node isolation — MAY run before root-cause investigation, provided they are reversible, observable, and quick to undo. Their purpose is to stop the bleeding, not to close the issue. Delivering a stop-loss as if it were the fix violates this law; the permanent fix still requires completed root-cause investigation.
+
 ## When to Use
 
 Use for ANY technical issue:
@@ -207,7 +209,7 @@ You MUST complete each applicable phase before proceeding.
 
    **Discuss with your human partner before attempting more fixes**
 
-   This is NOT a failed hypothesis - this is a wrong architecture.
+   Three failures trigger an architecture **review**, not a verdict. The cause is undetermined: wrong architecture, wrong assumptions, insufficient observation, or multiple independent defects are all live candidates. Decide together with your human partner.
 
 ## Red Flags - STOP and Follow Process
 
