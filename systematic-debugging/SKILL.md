@@ -5,23 +5,25 @@ description: "Use when any technical issue — errors, crashes, failing tests or
 
 # Systematic Debugging
 
-## Overview
+## Overview **[DEFAULT]**
 
 Random fixes waste time and create new bugs. Quick patches mask underlying issues.
 
-**Core principle:** ALWAYS find root cause before attempting fixes. Symptom fixes are failure.
+**Core principle:** the goal of diagnosis is the *minimal sufficient causal explanation* — enough understanding of the mechanism to choose the correct fix boundary. Do not chase an unattainable ultimate root cause. When the true origin is outside your control (upstream service, platform, vendor), fixing at the earliest boundary you *do* control is legitimate, as long as the boundary is named explicitly.
 
-## The Iron Law
+Symptom patches without a causal explanation are failure. Rules in this skill are tiered: **[INV]** invariants (violations are defects), **[DEFAULT]** standard policy (project facts or the user may override), **[HEURISTIC]** review signals (trigger a check, never a verdict by themselves), **[EXAMPLE]** illustrations (no normative force).
+
+## The Iron Law **[INV]**
 
 ```
-NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
+NO PERMANENT FIX WITHOUT A CAUSAL EXPLANATION SUFFICIENT TO CHOOSE THE FIX BOUNDARY
 ```
 
-If you haven't completed Phase 1, you cannot propose fixes.
+If you haven't completed Phase 1, you cannot propose permanent fixes.
 
-**Stop-loss is not a fix (active-incident exception).** In a live production incident, reversible mitigations — rollback, flag off, traffic shift, node isolation — MAY run before root-cause investigation, provided they are reversible, observable, and quick to undo. Their purpose is to stop the bleeding, not to close the issue. Delivering a stop-loss as if it were the fix violates this law; the permanent fix still requires completed root-cause investigation.
+**Stop-loss is not a fix (active-incident exception).** In a live production incident, reversible mitigations — rollback, flag off, traffic shift, node isolation — MAY run before causal investigation, provided they are reversible, observable, and quick to undo. Their purpose is to stop the bleeding, not to close the issue. Delivering a stop-loss as if it were the fix violates this law; the permanent fix still requires the causal explanation.
 
-## When to Use
+## When to Use **[DEFAULT]**
 
 Use for ANY technical issue:
 - Test failures
@@ -38,16 +40,11 @@ Use for ANY technical issue:
 - Previous fix didn't work
 - You don't fully understand the issue
 
-**Don't skip when:**
-- Issue seems simple (simple bugs have root causes too)
-- You're in a hurry (rushing guarantees rework)
-- Manager wants it fixed NOW (systematic is faster than thrashing)
+## The Four Phases **[DEFAULT]**
 
-## The Four Phases
+Work through the applicable phases in order. Scale the effort to the issue; the Iron Law above never scales.
 
-You MUST complete each applicable phase before proceeding.
-
-### Phase 1: Root Cause Investigation
+### Phase 1: Causal Investigation **[DEFAULT]**
 
 **BEFORE attempting ANY fix:**
 
@@ -86,15 +83,15 @@ You MUST complete each applicable phase before proceeding.
    THEN investigate that specific component
    ```
 
-   **Example (multi-layer system):**
+   **Example (multi-layer system) **[EXAMPLE]**:**
    ```bash
    # Layer 1: Workflow
    echo "=== Secrets available in workflow: ==="
-   echo "IDENTITY: ${IDENTITY:+SET}"   # 只打存在性：已设置显示 SET，未设置为空——绝不打印值
+   echo "IDENTITY: ${IDENTITY:+SET}"   # existence only: SET when set, empty otherwise — never prints the value
 
    # Layer 2: Build script
    echo "=== Env vars in build script: ==="
-   env | grep -q IDENTITY && echo "IDENTITY present" || echo "IDENTITY not in environment"   # grep -q 零输出：查传播不泄露值
+   env | grep -q IDENTITY && echo "IDENTITY present" || echo "IDENTITY not in environment"   # grep -q prints nothing: checks propagation without leaking the value
 
    # Layer 3: Signing script
    echo "=== Keychain state: ==="
@@ -116,10 +113,10 @@ You MUST complete each applicable phase before proceeding.
    **Quick version:**
    - Where does bad value originate?
    - What called this with bad value?
-   - Keep tracing up until you find the source
-   - Fix at source, not at symptom
+   - Keep tracing up until you find the source or the earliest boundary you control
+   - Fix at that boundary, not at the symptom
 
-### Phase 2: Pattern Analysis
+### Phase 2: Pattern Analysis **[DEFAULT]**
 
 **Find the pattern before fixing:**
 
@@ -142,7 +139,7 @@ You MUST complete each applicable phase before proceeding.
    - What settings, config, environment?
    - What assumptions does it make?
 
-### Phase 3: Hypothesis and Testing
+### Phase 3: Hypothesis and Testing **[DEFAULT]**
 
 **Scientific method:**
 
@@ -152,9 +149,8 @@ You MUST complete each applicable phase before proceeding.
    - Be specific, not vague
 
 2. **Test Minimally**
-   - Make the SMALLEST possible change to test hypothesis
-   - One variable at a time
-   - Don't fix multiple things at once
+   - Change ONE variable at a time to test the hypothesis
+   - Note: testing one variable is not the same as limiting the eventual fix to one file — a correct fix may be atomic across several files (see Phase 4)
 
 3. **Verify Before Continuing**
    - Did it work? Yes → continue to Phase 4
@@ -167,19 +163,19 @@ You MUST complete each applicable phase before proceeding.
    - Ask for help
    - Research more
 
-### Phase 4: Implementation
+### Phase 4: Implementation **[DEFAULT]**
 
-**Fix the root cause, not the symptom:**
+**Fix the cause at the chosen boundary, not the symptom:**
 
-1. **Create Failing Test Case**
+1. **Create Failing Test Case** — preferred proof, but not the only acceptable one
    - Simplest possible reproduction
    - Automated test if possible
    - One-off test script if no framework
-   - MUST have before fixing
+   - When an automated test is genuinely impractical (hardware, timing, external service), an executable reproduction, monitoring probe, or independent verification is acceptable — write down why the automated test was impractical (required)
 
-2. **Implement Single Fix**
-   - Address the root cause identified
-   - ONE change at a time
+2. **Implement the Fix**
+   - Address the causal explanation from Phase 1–3
+   - The fix may be atomic across multiple files when the mechanism requires it
    - No "while I'm here" improvements
    - No bundled refactoring
 
@@ -192,28 +188,23 @@ You MUST complete each applicable phase before proceeding.
    - STOP
    - Count: How many fixes have you tried?
    - If < 3: Return to Phase 1, re-analyze with new information
-   - **If ≥ 3: STOP and question the architecture (step 5 below)**
-   - DON'T attempt Fix #4 without architectural discussion
+   - **If ≥ 3: STOP and review your problem model (below)**
+   - DON'T attempt Fix #4 without that review
 
-5. **If 3+ Fixes Failed: Question Architecture**
+5. **If 3+ Fixes Failed: Review the Problem Model**
 
-   **Pattern indicating architectural problem:**
-   - Each fix reveals new shared state/coupling/problem in different place
-   - Fixes require "massive refactoring" to implement
-   - Each fix creates new symptoms elsewhere
+   Repeated failure triggers a **review of the problem model**, not a verdict about architecture. Candidates to examine with your human partner:
+   - Wrong assumptions about the mechanism
+   - Insufficient observation (missing instrumentation or logs)
+   - Multiple independent defects being mistaken for one
+   - An architectural problem (pattern fundamentally unsound, kept alive through inertia)
 
-   **STOP and question fundamentals:**
-   - Is this pattern fundamentally sound?
-   - Are we "sticking with it through sheer inertia"?
-   - Should we refactor architecture vs. continue fixing symptoms?
+   **Discuss with your human partner before attempting more fixes.** The output of this review is a decision: new hypothesis, better instrumentation, split the defects, or architecture change.
 
-   **Discuss with your human partner before attempting more fixes**
+## Red Flags - Review Triggers **[HEURISTIC]**
 
-   Three failures trigger an architecture **review**, not a verdict. The cause is undetermined: wrong architecture, wrong assumptions, insufficient observation, or multiple independent defects are all live candidates. Decide together with your human partner.
+These thoughts are **signals to pause and re-examine**, never proof by themselves:
 
-## Red Flags - STOP and Follow Process
-
-If you catch yourself thinking:
 - "Quick fix for now, investigate later"
 - "Just try changing X and see if it works"
 - "Add multiple changes, run tests"
@@ -223,14 +214,12 @@ If you catch yourself thinking:
 - "Pattern says X but I'll adapt it differently"
 - "Here are the main problems: [lists fixes without investigation]"
 - Proposing solutions before tracing data flow
-- **"One more fix attempt" (when already tried 2+)**
-- **Each fix reveals new problem in different place**
+- "One more fix attempt" (when already tried 2+)
+- Each fix reveals new problem in different place
 
-**ALL of these mean: STOP. Return to Phase 1.**
+When several of these fire, stop and return to Phase 1 with fresh eyes.
 
-**If 3+ fixes failed:** Question the architecture (see Phase 4.5)
-
-## your human partner's Signals You're Doing It Wrong
+## Your Human Partner's Signals You're Doing It Wrong **[HEURISTIC]**
 
 **Watch for these redirections:**
 - "Is that not happening?" - You assumed without verifying
@@ -239,53 +228,45 @@ If you catch yourself thinking:
 - "Ultrathink this" - Question fundamentals, not just symptoms
 - "We're stuck?" (frustrated) - Your approach isn't working
 
-**When you see these:** STOP. Return to Phase 1.
+**When you hear these:** pause and check whether you skipped Phase 1.
 
-## Common Rationalizations
+## Common Rationalizations **[EXAMPLE]**
 
 | Excuse | Reality |
 |--------|---------|
-| "Issue is simple, don't need process" | Simple issues have root causes too. Process is fast for simple bugs. |
-| "Emergency, no time for process" | Systematic debugging is FASTER than guess-and-check thrashing. |
+| "Issue is simple, don't need process" | Simple issues have causes too. Process is fast for simple bugs. |
+| "Emergency, no time for process" | Systematic diagnosis is usually faster than guess-and-check thrashing. |
 | "Just try this first, then investigate" | First fix sets the pattern. Do it right from the start. |
 | "I'll write test after confirming fix works" | Untested fixes don't stick. Test first proves it. |
 | "Multiple fixes at once saves time" | Can't isolate what worked. Causes new bugs. |
 | "Reference too long, I'll adapt the pattern" | Partial understanding guarantees bugs. Read it completely. |
-| "I see the problem, let me fix it" | Seeing symptoms ≠ understanding root cause. |
-| "One more fix attempt" (after 2+ failures) | 3+ failures = architectural problem. Question pattern, don't fix again. |
+| "I see the problem, let me fix it" | Seeing symptoms ≠ understanding cause. |
+| "One more fix attempt" (after 2+ failures) | 3+ failures = review the problem model, don't fix again. |
 
-## Quick Reference
+## Quick Reference **[DEFAULT]**
 
 | Phase | Key Activities | Success Criteria |
 |-------|---------------|------------------|
-| **1. Root Cause** | Read errors, reproduce, check changes, gather evidence | Understand WHAT and WHY |
+| **1. Causal** | Read errors, reproduce, check changes, gather evidence | Understand mechanism enough to choose fix boundary |
 | **2. Pattern** | Find working examples, compare | Identify differences |
 | **3. Hypothesis** | Form theory, test minimally | Confirmed or new hypothesis |
 | **4. Implementation** | Create test, fix, verify | Bug resolved, tests pass |
 
-## When Process Reveals "No Root Cause"
+## When Process Reveals "No Root Cause" **[DEFAULT]**
 
-If systematic investigation reveals issue is truly environmental, timing-dependent, or external:
+If systematic investigation shows the issue is truly environmental, timing-dependent, or external:
 
 1. You've completed the process
 2. Document what you investigated
 3. Implement appropriate handling (retry, timeout, error message)
 4. Add monitoring/logging for future investigation
 
-**But:** 95% of "no root cause" cases are incomplete investigation.
+**But:** treat "no root cause" as a claim that needs evidence — most cases are incomplete investigation.
 
-## Supporting Techniques
+## Supporting Techniques **[DEFAULT]**
 
 These techniques are part of systematic debugging and available in this directory:
 
 - **`root-cause-tracing.md`** - Trace bugs backward through call stack to find original trigger
-- **`defense-in-depth.md`** - Add validation at multiple layers after finding root cause
+- **`defense-in-depth.md`** - Add validation at trust, ownership, and irreversible-effect boundaries
 - **`condition-based-waiting.md`** - Replace arbitrary timeouts with condition polling
-
-## Real-World Impact
-
-From debugging sessions:
-- Systematic approach: 15-30 minutes to fix
-- Random fixes approach: 2-3 hours of thrashing
-- First-time fix rate: 95% vs 40%
-- New bugs introduced: Near zero vs common

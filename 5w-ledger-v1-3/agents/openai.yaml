@@ -1,0 +1,7 @@
+interface:
+  display_name: "5W Ledger RCA"
+  short_description: "Evidence-ledger root cause analysis for high-severity or multi-cause incidents"
+  default_prompt: "Use $5w-ledger-v1-3 to run an evidence-ledger root cause analysis of this incident."
+
+policy:
+  allow_implicit_invocation: true

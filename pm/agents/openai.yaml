@@ -1,0 +1,7 @@
+interface:
+  display_name: "PM — Idea to Task Brief"
+  short_description: "Requirements interview, direction gate, executable task brief for execution agents"
+  default_prompt: "Use $pm to turn this idea into requirements and an executable task brief."
+
+policy:
+  allow_implicit_invocation: true

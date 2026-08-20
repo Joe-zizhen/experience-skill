@@ -1,0 +1,7 @@
+interface:
+  display_name: "Senior Engineer"
+  short_description: "Coding invariants, reuse-first governance, adversarial review"
+  default_prompt: "Use $senior-engineer for this coding task: follow its invariants, run the reuse search before writing new code, and do the adversarial review before delivery."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,67 @@
+schema: 1
+suite: myskills
+
+# 规则四级：绝对化词语只允许出现在 [INV] 块内（tools/check-suite.py 按"最近前置标签"判定）
+rules:
+  tiers: [INV, DEFAULT, HEURISTIC, EXAMPLE]
+  absolute_words: [必须, 禁止, 无豁免, ALWAYS, NEVER, MUST, 不许]
+  absolute_words_note: "出现在非 [INV] 上下文（行内或最近前置块标签）即守卫失败；多标签并列的图例/目录行豁免"
+
+skills:
+  experience:
+    path: experience/
+    driver: background-readonly
+    note: "只读经验检索是背景层，不算主驱动"
+    invokes_when: [写入条目, 维护, 显式检索, 播种或setup]
+  pm:
+    path: pm/
+    driver: primary
+    invokes_when: [新需求, 新功能, 产品想法, PRD, 任务书]
+  senior-engineer:
+    path: senior-engineer/
+    driver: primary
+    invokes_when: [编码任务, 审查]
+  systematic-debugging:
+    path: systematic-debugging/
+    driver: primary
+    invokes_when: [技术故障, 测试失败, 构建失败, 行为异常]
+  5w-ledger-v1-3:
+    path: 5w-ledger-v1-3/
+    driver: primary
+    invokes_when: [事故级根因分析, 审计复盘, 交接, 多因交织]
+  first-principle-v2:
+    path: first-principle-v2/
+    driver: primary
+    invokes_when: [重大决策, 难逆决策, 假设未决]
+
+routing:
+  single_primary_driver: true
+  note: "任一时刻只允许一个主 Skill 驱动流程；其他 Skill 只能接收明确交接，不得一开始全部叠加。只读经验检索（background-readonly）不算主驱动。"
+  lanes:
+    - name: 需求不清
+      flow: [pm, "first-principle-v2（重大决策时交接）", senior-engineer]
+    - name: 技术故障
+      flow: [systematic-debugging, senior-engineer]
+    - name: 严重事故
+      flow: ["可逆止血（systematic-debugging 铁律例外）", "systematic-debugging 定位 / 5w-ledger-v1-3 审计", first-principle-v2, senior-engineer]
+  after_completion: ["experience 候选条目 → 用户确认后写入"]
+
+handoff:
+  fields: [observed_behavior, expected_behavior, reproduction, evidence_refs, confirmed_mechanism_or_hypothesis, confidence, scope, unknowns]
+
+permissions:
+  requires_explicit_setup:
+    - 安装工具或装配 MCP（含 Context7）
+    - 修改宿主配置（含 hook 注入）
+    - 播种项目治理文件（经验库、路由指针、能力目录）
+    - 外部写操作
+  setup_rules: [显式同意, 先备份, 只追加带标记, 验证语法与探针]
+  remote_execution: "禁止 @latest；远程执行依赖必须固定版本"
+
+output_precedence:
+  - "用户指定格式 > skill 默认输出契约"
+  - "宿主/项目强制前缀（如经验命中标记）不违反任何输出契约"
+  - "命中标记仅在项目明确要求时输出"
+
+descriptions:
+  max_chars: 350

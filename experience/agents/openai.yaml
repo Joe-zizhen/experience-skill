@@ -1,0 +1,7 @@
+interface:
+  display_name: "Experience"
+  short_description: "Cross-session memory: pitfalls, entries, decisions — record once, retrieve at decision points"
+  default_prompt: "Use $experience to check the project experience index before starting; if this session hits a pitfall or a hard-to-find entry point, draft an entry for my confirmation."
+
+policy:
+  allow_implicit_invocation: true

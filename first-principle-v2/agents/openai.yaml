@@ -1,0 +1,7 @@
+interface:
+  display_name: "First Principle Design"
+  short_description: "Derive the simplest correct design from foundational facts for major or hard-to-reverse decisions"
+  default_prompt: "Use $first-principle-v2 to derive a first-principles design for this decision."
+
+policy:
+  allow_implicit_invocation: true

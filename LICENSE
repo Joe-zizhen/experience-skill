@@ -23,7 +23,7 @@ SOFTWARE.
 ---
 
 Scope: this license applies to all original content in this repository
-(`experience/`, `senior-engineer/`, `pm/`, `5w-ledger-v1-2/`,
+(`experience/`, `senior-engineer/`, `pm/`, `5w-ledger-v1-3/`,
 `first-principle-v2/`, and documentation). The `systematic-debugging/`
 directory is a derivative work of https://github.com/obra/superpowers and is
 licensed separately under `systematic-debugging/LICENSE`.

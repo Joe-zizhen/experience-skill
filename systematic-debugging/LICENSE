@@ -25,7 +25,11 @@ SOFTWARE.
 This directory contains a derived copy of the `systematic-debugging` skill from
 https://github.com/obra/superpowers (MIT License), with the following
 modifications: the locally added "Loop Diagnosis-Handoff Mode" section was
-removed; `find-polluter.sh` was rewritten (fail-closed behavior, pre-existing
-pollution detection, space-safe paths); `SKILL.md` and `defense-in-depth.md`
-received small fixes (dead references removed, env examples redacted,
+removed; `find-polluter.sh` was renamed to `isolate-polluter.sh` and rewritten
+(sequential isolation, fail-closed behavior, pre-existing pollution detection,
+space-safe paths, reserved-name guard) with tests added; `SKILL.md` was
+restructured (minimal-sufficient-causal-explanation goal, stop-loss exception,
+problem-model review, unsourced statistics removed, dead references removed,
+env examples redacted); attachments were hardened (boundary-scoped
+defense-in-depth, monotonic and cancellable waiting with tests, log redaction,
 path-guard hardening). All other files are unmodified copies.

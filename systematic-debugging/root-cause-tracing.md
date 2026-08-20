@@ -1,27 +1,12 @@
 # Root Cause Tracing
 
-## Overview
+## Overview **[DEFAULT]**
 
 Bugs often manifest deep in the call stack (git init in wrong directory, file created in wrong location, database opened with wrong path). Your instinct is to fix where the error appears, but that's treating a symptom.
 
-**Core principle:** Trace backward through the call chain until you find the original trigger, then fix at the source.
+**Core principle:** Trace backward through the call chain until you find the original trigger — or the earliest boundary you control — and fix there, not at the symptom. When the true origin is upstream and out of your control, the earliest controllable boundary is a legitimate fix point, as long as you name it explicitly.
 
-## When to Use
-
-```dot
-digraph when_to_use {
-    "Bug appears deep in stack?" [shape=diamond];
-    "Can trace backwards?" [shape=diamond];
-    "Fix at symptom point" [shape=box];
-    "Trace to original trigger" [shape=box];
-    "BETTER: Also add defense-in-depth" [shape=box];
-
-    "Bug appears deep in stack?" -> "Can trace backwards?" [label="yes"];
-    "Can trace backwards?" -> "Trace to original trigger" [label="yes"];
-    "Can trace backwards?" -> "Fix at symptom point" [label="no - dead end"];
-    "Trace to original trigger" -> "BETTER: Also add defense-in-depth";
-}
-```
+## When to Use **[DEFAULT]**
 
 **Use when:**
 - Error happens deep in execution (not at entry point)
@@ -29,7 +14,7 @@ digraph when_to_use {
 - Unclear where invalid data originated
 - Need to find which test/code triggers the problem
 
-## The Tracing Process
+## The Tracing Process **[EXAMPLE]**
 
 ### 1. Observe the Symptom
 ```
@@ -63,7 +48,7 @@ const context = setupCoreTest(); // Returns { tempDir: '' }
 Project.create('name', context.tempDir); // Accessed before beforeEach!
 ```
 
-## Adding Stack Traces
+## Adding Stack Traces **[DEFAULT]**
 
 When you can't trace manually, add instrumentation:
 
@@ -84,6 +69,8 @@ async function gitInit(directory: string) {
 
 **Critical:** Use `console.error()` in tests (not logger - may not show)
 
+**Redact before you log:** debug logs must not contain secret values (tokens, keys, passwords, personal data). For env-var checks use existence-only forms (`${VAR:+SET}`); review what each logged field can contain before adding it — a debug log that lands in CI artifacts or bug reports is a disclosure channel.
+
 **Run and capture:**
 ```bash
 npm test 2>&1 | grep 'DEBUG git init'
@@ -94,19 +81,19 @@ npm test 2>&1 | grep 'DEBUG git init'
 - Find the line number triggering the call
 - Identify the pattern (same test? same parameter?)
 
-## Finding Which Test Causes Pollution
+## Finding Which Test Causes Pollution **[DEFAULT]**
 
 If something appears during tests but you don't know which test:
 
-Use the bisection script `find-polluter.sh` in this directory:
+Use the sequential isolation script `isolate-polluter.sh` in this directory:
 
 ```bash
-./find-polluter.sh '.git' 'src/**/*.test.ts'
+./isolate-polluter.sh 'tmp-output.log' 'src/**/*.test.ts'
 ```
 
-Runs tests one-by-one, stops at first polluter. See script for usage.
+It runs tests one-by-one in order and stops at the first test after which the target exists. The target must NOT exist before the run — the script fails closed in that case by design. See the script header for usage.
 
-## Real Example: Empty projectDir
+## Real Example: Empty projectDir **[EXAMPLE]**
 
 **Symptom:** `.git` created in `packages/core/` (source code)
 
@@ -121,49 +108,23 @@ Runs tests one-by-one, stops at first polluter. See script for usage.
 
 **Fix:** Made tempDir a getter that throws if accessed before beforeEach
 
-**Also added defense-in-depth:**
-- Layer 1: Project.create() validates directory
-- Layer 2: WorkspaceManager validates not empty
-- Layer 3: NODE_ENV guard refuses git init outside tmpdir
-- Layer 4: Stack trace logging before git init
+**Also added defense-in-depth (boundary-scoped):**
+- Trust boundary: Project.create() validates directory
+- Ownership boundary: WorkspaceManager validates not empty
+- Irreversible-effect entry: NODE_ENV guard refuses git init outside tmpdir
+- Forensics (not a defense): stack trace logging before git init
 
-## Key Principle
+## Key Principle **[DEFAULT]**
 
-```dot
-digraph principle {
-    "Found immediate cause" [shape=ellipse];
-    "Can trace one level up?" [shape=diamond];
-    "Trace backwards" [shape=box];
-    "Is this the source?" [shape=diamond];
-    "Fix at source" [shape=box];
-    "Add validation at each layer" [shape=box];
-    "Bug impossible" [shape=doublecircle];
-    "NEVER fix just the symptom" [shape=octagon, style=filled, fillcolor=red, fontcolor=white];
+Fix where the mechanism breaks — the original trigger, or the earliest boundary you control — not where the error happens to surface. Then place independent defenses at the boundaries that need them (see `defense-in-depth.md`).
 
-    "Found immediate cause" -> "Can trace one level up?";
-    "Can trace one level up?" -> "Trace backwards" [label="yes"];
-    "Can trace one level up?" -> "NEVER fix just the symptom" [label="no"];
-    "Trace backwards" -> "Is this the source?";
-    "Is this the source?" -> "Trace backwards" [label="no - keeps going"];
-    "Is this the source?" -> "Fix at source" [label="yes"];
-    "Fix at source" -> "Add validation at each layer";
-    "Add validation at each layer" -> "Bug impossible";
-}
-```
-
-**NEVER fix just where the error appears.** Trace back to find the original trigger.
-
-## Stack Trace Tips
+## Stack Trace Tips **[HEURISTIC]**
 
 **In tests:** Use `console.error()` not logger - logger may be suppressed
 **Before operation:** Log before the dangerous operation, not after it fails
-**Include context:** Directory, cwd, environment variables, timestamps
+**Include context:** Directory, cwd, environment variables (redacted), timestamps
 **Capture stack:** `new Error().stack` shows complete call chain
 
-## Real-World Impact
+## Session Note **[EXAMPLE]**
 
-From debugging session (2025-10-03):
-- Found root cause through 5-level trace
-- Fixed at source (getter validation)
-- Added 4 layers of defense
-- 1847 tests passed, zero pollution
+From a debugging session (2025-10-03): found the root cause through a 5-level trace, fixed at the source (getter validation), added boundary-scoped defenses; 1847 tests passed with zero pollution in that run.

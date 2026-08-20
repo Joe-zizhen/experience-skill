@@ -1,26 +1,26 @@
 # Defense-in-Depth Validation
 
-## Overview
+## Overview **[DEFAULT]**
 
 When you fix a bug caused by invalid data, adding validation at one place feels sufficient. But that single check can be bypassed by different code paths, refactoring, or mocks.
 
-**Core principle:** Validate at EVERY layer data passes through. Make the bug structurally impossible.
+**Core principle:** place *independent* defenses at the boundaries where they buy real protection — not at every layer data passes through. Indiscriminate layering duplicates checks, hides the contract's owner, and creates guard theater.
 
-## Why Multiple Layers
+## Where Defenses Belong **[DEFAULT]**
 
-Single validation: "We fixed the bug"
-Multiple layers: "We made the bug impossible"
+Add an independent defense when — and only when — the data crosses one of these boundaries:
 
-Different layers catch different cases:
-- Entry validation catches most bugs
-- Business logic catches edge cases
-- Environment guards prevent context-specific dangers
-- Debug logging helps when other layers fail
+1. **Trust boundary** — external input enters the system (API payload, file ingest, CLI args, env vars). Entry validation rejects obviously invalid input here.
+2. **Ownership boundary** — data passes into a module/component whose internals another owner (team, future refactor, generated code) may change without telling you. The consumer re-validates the contract it depends on, because it cannot control the producer.
+3. **Irreversible-effect entry** — the last checkpoint before an operation you cannot undo (delete, deploy, `git init` in a directory, send, format). Environment/context guards live here.
 
-## The Four Layers
+If a point matches none of the three, duplicating the check there is usually redundancy, not defense.
 
-### Layer 1: Entry Point Validation
-**Purpose:** Reject obviously invalid input at API boundary
+**Logging and instrumentation are forensic aids, not a validation layer.** A log line stops nothing. Keep debug logging for post-failure analysis, but never count it as a defense.
+
+## The Boundary Layers, Illustrated **[EXAMPLE]**
+
+### Trust boundary: entry validation
 
 ```typescript
 function createProject(name: string, workingDirectory: string) {
@@ -37,8 +37,7 @@ function createProject(name: string, workingDirectory: string) {
 }
 ```
 
-### Layer 2: Business Logic Validation
-**Purpose:** Ensure data makes sense for this operation
+### Ownership boundary: consumer re-validates
 
 ```typescript
 function initializeWorkspace(projectDir: string, sessionId: string) {
@@ -49,8 +48,7 @@ function initializeWorkspace(projectDir: string, sessionId: string) {
 }
 ```
 
-### Layer 3: Environment Guards
-**Purpose:** Prevent dangerous operations in specific contexts
+### Irreversible-effect entry: environment guard
 
 ```typescript
 async function gitInit(directory: string) {
@@ -59,7 +57,8 @@ async function gitInit(directory: string) {
     const normalized = normalize(resolve(directory));
     const tmpDir = normalize(resolve(tmpdir()));
 
-    // 前缀必须带分隔符：裸 startsWith(tmpDir) 会被同前缀兄弟目录绕过（Temp-evil.startsWith(Temp) === true）
+    // Prefix must include the separator: bare startsWith(tmpDir) is bypassed by
+    // same-prefix siblings (Temp-evil.startsWith(Temp) === true)
     if (normalized !== tmpDir && !normalized.startsWith(tmpDir + sep)) {
       throw new Error(
         `Refusing git init outside temp dir during tests: ${directory}`
@@ -70,8 +69,7 @@ async function gitInit(directory: string) {
 }
 ```
 
-### Layer 4: Debug Instrumentation
-**Purpose:** Capture context for forensics
+### Forensics (NOT a defense): debug instrumentation
 
 ```typescript
 async function gitInit(directory: string) {
@@ -85,16 +83,16 @@ async function gitInit(directory: string) {
 }
 ```
 
-## Applying the Pattern
+## Applying the Pattern **[DEFAULT]**
 
 When you find a bug:
 
-1. **Trace the data flow** - Where does bad value originate? Where used?
-2. **Map all checkpoints** - List every point data passes through
-3. **Add validation at each layer** - Entry, business, environment, debug
-4. **Test each layer** - Try to bypass layer 1, verify layer 2 catches it
+1. **Trace the data flow** - Where does the bad value originate? Where is it used?
+2. **Map the boundaries it crosses** - trust, ownership, irreversible-effect
+3. **Add one independent defense per crossed boundary** - each must catch the bug on its own
+4. **Test each defense** - try to bypass the entry check, verify the inner one still catches it
 
-## Example from Session
+## Example from Session **[EXAMPLE]**
 
 Bug: Empty `projectDir` caused `git init` in source code
 
@@ -104,20 +102,21 @@ Bug: Empty `projectDir` caused `git init` in source code
 3. `WorkspaceManager.createWorkspace('')`
 4. `git init` runs in `process.cwd()`
 
-**Four layers added:**
-- Layer 1: `Project.create()` validates not empty/exists/writable
-- Layer 2: `WorkspaceManager` validates projectDir not empty
-- Layer 3: `WorktreeManager` refuses git init outside tmpdir in tests
-- Layer 4: Stack trace logging before git init
+**Defenses added:**
+- Trust boundary: `Project.create()` validates directory
+- Ownership boundary: `WorkspaceManager` validates projectDir not empty
+- Irreversible-effect entry: `WorktreeManager` refuses git init outside tmpdir in tests
+- Forensics (not a defense): stack trace logging before git init
 
 **Result:** All 1847 tests passed, bug impossible to reproduce
 
-## Key Insight
+## Key Insight **[DEFAULT]**
 
-All four layers were necessary. During testing, each layer caught bugs the others missed:
+Each boundary caught cases the others missed:
+
 - Different code paths bypassed entry validation
 - Mocks bypassed business logic checks
 - Edge cases on different platforms needed environment guards
-- Debug logging identified structural misuse
+- Debug logging identified structural misuse (but stopped nothing by itself)
 
-**Don't stop at one validation point.** Add checks at every layer.
+**Don't stop at one validation point.** Place the next defense at the next *boundary*, not at the next arbitrary layer.
