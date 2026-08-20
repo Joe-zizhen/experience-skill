@@ -1,7 +1,8 @@
 {
-  "purpose": "冻结评测语料（仓外 ~/.skills-evals/）的完整性锚点；语料内容按隔离规则不进仓",
-  "updated": "2026-08-20",
+  "purpose": "冻结评测语料与执行包（仓外 ~/.skills-evals/）的完整性锚点；内容按隔离规则不进仓",
+  "updated": "2026-08-21",
   "files": {
+    "EXECUTOR.md": "9c1975a9678ea446b924be97e896340f3b03e69eaed34672b527e3255354726c",
     "isolation.md": "e98d2053c64767e1885237b80fd958f71064077dfe634685c584f2f43a32591e",
     "routing/rubric.md": "6a93ecf62d6ad512b608ab3eaab14fe2d99abb4c5f803b30735717e1ae4823a3",
     "routing/routing-v1.jsonl": "2b8ec0fa473a696745481eac972b82403533e2ca37b81035da53b77ea3854737",
