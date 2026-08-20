@@ -1,0 +1,16 @@
+{
+  "purpose": "冻结评测语料（仓外 ~/.skills-evals/）的完整性锚点；语料内容按隔离规则不进仓",
+  "created": "2026-08-20",
+  "files": {
+    "isolation.md": "e98d2053c64767e1885237b80fd958f71064077dfe634685c584f2f43a32591e",
+    "routing/rubric.md": "6a93ecf62d6ad512b608ab3eaab14fe2d99abb4c5f803b30735717e1ae4823a3",
+    "routing/routing-v1.jsonl": "2b8ec0fa473a696745481eac972b82403533e2ca37b81035da53b77ea3854737",
+    "routing/results.jsonl": "da4ee6d7275e03130af96577ca7f1888440853454a033c7c1eb8fb48e53c384e",
+    "method/rubric.md": "97710ecd2717a6f918ad25e5079b692aee60fbba550df2a47f790d8263439721",
+    "method/method-v1.jsonl": "40f43fb76695c2d3637cc0d7c490e227402cb2ba6c8462c5ac81c491a080611b",
+    "method/results.jsonl": "da4ee6d7275e03130af96577ca7f1888440853454a033c7c1eb8fb48e53c384e",
+    "chain/rubric.md": "88a43f61d1b756cdfa051091dd9894f1bab78b5014ade5ff50ed2f484719784c",
+    "chain/chain-v1.jsonl": "02dc5a5dffde9dda5b32417e99fd1e3c4312a4ffcaea8691dc7655f9c14084c9",
+    "chain/results.jsonl": "da4ee6d7275e03130af96577ca7f1888440853454a033c7c1eb8fb48e53c384e"
+  }
+}

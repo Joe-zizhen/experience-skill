@@ -1,6 +1,6 @@
 # 正负触发提示集（description 路由的回归检查）
 
-**用途**：skill 的 `description` 是唯一路由依据。改任何 description 后，用本清单逐条验证路由行为——正例必须触发目标 skill，负例必须**不**触发（应流向括号标注的 skill）。
+**用途**：skill 的 `description` 是唯一路由依据。改任何 description 后，用本清单逐条验证路由行为——正例必须触发目标 skill，负例必须**不**触发（应流向括号标注的 skill）。完整冻结语料（72 路由 / 18 方法 / 8 链路，含预期答案）按隔离规则存放在仓外 `~/.skills-evals/`；本文件是公开子集与维护规则。
 
 **用法**：逐条开新会话投给宿主（或问当前路由 agent"这条该调哪个 skill"），核对结果与预期。任一不符 = 路由回归，先修 description 再发布。预期可以是**有序 skill 链**（如「页面突然白屏」→ systematic-debugging，事故级时后续接 5w-ledger-v1-3）——核对时按链逐环判。
 

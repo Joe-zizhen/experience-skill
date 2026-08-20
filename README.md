@@ -160,5 +160,7 @@ Claude Code 则拷到 `~/.claude/skills/`。**装完重启宿主**——技能�
 - 本仓是 skill 的唯一权威源：在本地 skill 目录改完后，拷回对应子目录，commit + push。
 - 改任何 skill 的 `description`（路由契约）后，必须过一遍 `evals/trigger-prompts.md` 的正负触发集，防路由撞车与回归；实跑结果记入该文件的结果账本。
 - 提交前跑 `python tools/check-suite.py`：四级标签与绝对词越级、frontmatter 与 description ≤350 字符、禁用 `@latest`、UTF-8 无 BOM/无替换字符、死链接、LICENSE、脚本语法与执行位，全绿才算完。
+- 静态回归再跑 `python tools/check-regression.py`：三轮对抗评审修复的防回潮断言（密钥脱敏、路径守卫、假阴性、死引用、同意门、输出豁免、直通降级等）。
+- 冻结评测语料（路由 72 / 方法 18 / 链路 8 + rubric + 结果账本）按隔离规则放仓外 `~/.skills-evals/`（规则见该目录 `isolation.md`，语料不进任何仓库）；仓内 `tools/eval-manifest.json` 存各语料文件的 SHA-256 完整性锚点。
 - 路由、权限、交接、输出优先级的单一事实源是 `contracts/suite-v1.yaml`。
 - 各项目里的 `docs/experience/`（项目经验）不进本仓，随项目自己的 git 走。
