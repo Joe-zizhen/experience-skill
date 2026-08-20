@@ -30,3 +30,11 @@
 - 证据：2026-08-19 实测官方定价页（context7.com/plans）与仓库 README（github.com/upstash/context7）。
 - 死因：Context7 服务停用或计费规则变更后。
 - 记录：2026-08-19｜最近命中：2026-08-19
+
+## [网络/GitHub] git push 失败但 gh api 通时（push 超时、TLS 中断、schannel、443、推送不了、推不上去）
+
+- 行动：当 git push GitHub 反复失败（TLS 中断/443 超时）但 `gh api` 正常时，改走 git data API 推送：建 tree（带文件 content）→ 建 commit → PATCH refs/heads/main 指向新提交；内容与本地提交一致但 SHA 为服务端新建，网络恢复后用 `git fetch origin && git reset --hard origin/main` 对齐本地（本地重复提交可弃）。
+- 根因：github.com（git 协议）与 api.github.com 被网络层区别对待，前者被干扰时后者仍可用（推断，与"两次 push 失败而 gh api 秒回"实测一致）。
+- 证据：2026-08-20 实测 git push 两次失败（schannel 中断 + 443 连接超时），`gh api` 正常；改走 git data API 一次推送成功（Joe-zizhen/experience-skill，远端提交 5f043cac）。
+- 死因：网络环境变化（github.com 直连长期稳定）后复核。
+- 记录：2026-08-20｜最近命中：2026-08-20
