@@ -1,0 +1,7 @@
+interface:
+  display_name: "Loop Systematic Debugging"
+  short_description: "Reproduce failures and produce a source-backed technical diagnosis"
+  default_prompt: "Use $systematic-debugging to reproduce this Bug and produce the Loop technical_diagnosis handoff without implementing a fix."
+
+policy:
+  allow_implicit_invocation: true
