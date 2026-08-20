@@ -143,6 +143,8 @@ whenToUse: "每次任务开始探索、回答问题或写代码前（必须先�
 
 文本门禁是概率性的，hook 是结构强制的。换宿主或换机器后第一次使用本 skill 时执行本章节，把检索从"请求"升级为"结构"：
 
+**先同意后动手**：改任何宿主配置前，先向用户明示将修改的文件、追加的内容与验证方式，征得同意才动手；未获同意时只走文本门禁，不碰配置。
+
 ### 1. 识别宿主（探测不出就问用户一次，禁止瞎猜）
 
 探测线索：系统提示自报身份、宿主配置目录存在性（`~/.kimi-code/`、`~/.claude/`、`~/.cursor/` 等）、环境变量。猜错宿主 = 写错配置，宁可问一次。
@@ -196,7 +198,18 @@ process.stdin.on('end', () => {
       log(`${new Date().toISOString()} event=${payload.hook_event_name || '?'} cwd=${cwd} result=no-index`);
       process.exit(0);
     }
-    const content = fs.readFileSync(indexPath, 'utf8');
+    let content = fs.readFileSync(indexPath, 'utf8');
+    // 注入上限（防超大索引耗尽上下文）：超过 16KB 按行截断并标注
+    const MAX_BYTES = 16384;
+    if (Buffer.byteLength(content, 'utf8') > MAX_BYTES) {
+      const lines = content.split('\n');
+      let truncated = '';
+      for (const line of lines) {
+        if (Buffer.byteLength(truncated + line + '\n', 'utf8') > MAX_BYTES) break;
+        truncated += line + '\n';
+      }
+      content = truncated + '\n[注意] 索引超过 16KB 已按行截断——请按规模规则转两阶段索引。';
+    }
     if (!content.trim()) {
       log(`${new Date().toISOString()} event=${payload.hook_event_name || '?'} cwd=${cwd} result=empty-index`);
       process.exit(0);

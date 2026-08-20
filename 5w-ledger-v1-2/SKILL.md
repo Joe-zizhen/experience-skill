@@ -127,7 +127,7 @@ Apply these rules:
 
 ## Output Contract
 
-Return exactly two top-level sections, in this order, with nothing outside them:
+Return exactly two top-level sections, in this order, with nothing outside them. A host- or project-mandated metadata prefix (such as an experience-gate hit marker) may precede `<ledger>` and does not violate this contract; the two sections remain the entire content body:
 
 ```
 <ledger>

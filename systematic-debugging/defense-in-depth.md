@@ -59,7 +59,8 @@ async function gitInit(directory: string) {
     const normalized = normalize(resolve(directory));
     const tmpDir = normalize(resolve(tmpdir()));
 
-    if (!normalized.startsWith(tmpDir)) {
+    // 前缀必须带分隔符：裸 startsWith(tmpDir) 会被同前缀兄弟目录绕过（Temp-evil.startsWith(Temp) === true）
+    if (normalized !== tmpDir && !normalized.startsWith(tmpDir + sep)) {
       throw new Error(
         `Refusing git init outside temp dir during tests: ${directory}`
       );

@@ -93,6 +93,7 @@ You MUST complete each applicable phase before proceeding.
    # Layer 2: Build script
    echo "=== Env vars in build script: ==="
    env | grep IDENTITY || echo "IDENTITY not in environment"
+   # 脱敏提醒：env 直打会把变量值写进日志；共享/生产日志改用 "${VAR:+SET}" 只打存在性
 
    # Layer 3: Signing script
    echo "=== Keychain state: ==="
@@ -174,7 +175,6 @@ You MUST complete each applicable phase before proceeding.
    - Automated test if possible
    - One-off test script if no framework
    - MUST have before fixing
-   - Use the `test-driven-development` skill for writing proper failing tests
 
 2. **Implement Single Fix**
    - Address the root cause identified
@@ -280,10 +280,6 @@ These techniques are part of systematic debugging and available in this director
 - **`root-cause-tracing.md`** - Trace bugs backward through call stack to find original trigger
 - **`defense-in-depth.md`** - Add validation at multiple layers after finding root cause
 - **`condition-based-waiting.md`** - Replace arbitrary timeouts with condition polling
-
-**Related skills:**
-- **`test-driven-development`** - For creating the failing test and implementing downstream
-- **`verification-before-completion`** - Verify the final result before claiming success
 
 ## Real-World Impact
 
