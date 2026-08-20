@@ -139,19 +139,18 @@ experience    经验沉淀：坑、入口、决策、功能全部记下来
 
 ---
 
-## 安装（Kimi Code）
+## 安装（Kimi Code / Claude Code / Codex）
 
 ```bash
 git clone https://github.com/Joe-zizhen/experience-skill.git ~/skills-collection
-cp -r ~/skills-collection/experience ~/.agents/skills/
-cp -r ~/skills-collection/senior-engineer ~/.agents/skills/
-cp -r ~/skills-collection/systematic-debugging ~/.agents/skills/
-cp -r ~/skills-collection/5w-ledger-v1-3 ~/.agents/skills/
-cp -r ~/skills-collection/first-principle-v2 ~/.agents/skills/
-cp -r ~/skills-collection/pm ~/.agents/skills/
+python ~/skills-collection/tools/install.py --source ~/skills-collection --host-dir ~/.agents/skills
 ```
 
-Claude Code 则拷到 `~/.claude/skills/`。**装完重启宿主**——技能清单是会话启动时加载的缓存，不重启看不见新 skill。
+Claude Code 把 `--host-dir` 换成 `~/.claude/skills`，Codex 换成 `~/.codex/skills`。**装完重启宿主**——技能清单是会话启动时加载的缓存，不重启看不见新 skill。
+
+安装器（替代 `cp -r`）：暂存 → SHA-256 校验 → 备份 → 原子替换 → 读回哈希，失败自动回滚；`--verify-only` 随时读回校验；`--skills` 可只装指定几个。
+
+宿主验证状态（2026-08-20，安装门禁 13/13 实测）：kimi(`.agents`)/claude(`.claude`)/codex(`.codex`) 三种目录布局的安装、升级、失败回滚、哈希读回全部通过；证据账本在仓外 `~/.skills-evals/install/`。
 
 通用经验数据目录（可选）：默认 `~/.experience/`（已有通用坑条目）；未配置时只用项目经验。
 
@@ -162,5 +161,6 @@ Claude Code 则拷到 `~/.claude/skills/`。**装完重启宿主**——技能�
 - 提交前跑 `python tools/check-suite.py`：四级标签与绝对词越级、frontmatter 与 description ≤350 字符、禁用 `@latest`、UTF-8 无 BOM/无替换字符、死链接、LICENSE、脚本语法与执行位，全绿才算完。
 - 静态回归再跑 `python tools/check-regression.py`：三轮对抗评审修复的防回潮断言（密钥脱敏、路径守卫、假阴性、死引用、同意门、输出豁免、直通降级等）。
 - 冻结评测语料（路由 72 / 方法 18 / 链路 8 + rubric + 结果账本）按隔离规则放仓外 `~/.skills-evals/`（规则见该目录 `isolation.md`，语料不进任何仓库）；仓内 `tools/eval-manifest.json` 存各语料文件的 SHA-256 完整性锚点。
+- 门禁证据（仓外账本）：安装门禁 13/13（2026-08-20）；有用性试点双盲 2/2（u-16、u-18，Skill 组胜）——全量 18 任务与路由/方法/链路的实跑结果分批回填各自 `results.jsonl`。
 - 路由、权限、交接、输出优先级的单一事实源是 `contracts/suite-v1.yaml`。
 - 各项目里的 `docs/experience/`（项目经验）不进本仓，随项目自己的 git 走。
