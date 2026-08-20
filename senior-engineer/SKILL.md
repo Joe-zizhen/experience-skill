@@ -64,7 +64,7 @@ whenToUse: "任何涉及代码的任务（写、改、重构、选型、交付�
    - **选型发现**（"有没有库/现成方案能实现功能 X"）→ **用 GitHub 搜索 / web 搜索**（搜仓库、awesome 列表、社区对比讨论）。**Context7 不适用于此**——它只收录已被索引库的文档，回答不了"有没有"。
    - **用法查证**（"已选定库 X，查它的 API 怎么调"）→ **Context7 MCP 优先**（工具列表里有 `resolve-library-id` 时）：调 `resolve-library-id` 拿 library ID，再调 `get-library-docs` 取最新文档，标 `完成（Context7：<library-id>）`。
 
-   Context7 未配置时的装配：优先用当前 agent 自己的 MCP 注册命令（`claude mcp add` / `codex mcp add` 等，先 `which` 核实存在）；没有注册命令才探测配置文件手改（探到哪个改哪个，不存在的不要新建；JSON 文件写 JSON、TOML 文件写 TOML，格式跟着文件走）：Claude Code `~/.claude.json`（`mcpServers`）、Codex `~/.codex/config.toml`（`[mcp_servers.context7]`）、Cursor `~/.cursor/mcp.json`、Windsurf `~/.codeium/windsurf/mcp_config.json`、Gemini CLI `~/.gemini/settings.json`。注册参数统一：名字 `context7`、stdio、`npx -y @upstash/context7-mcp@latest`（需 Node ≥ 18）。都探不到就问用户一次并把答案钉进 `docs/mymodules/CONFIG.md` 的 `mcp_config_path`。写回后基本都要重启才生效——本次会话如实降级，不许假装调用成功。
+   Context7 未配置时的装配：**装配会写入宿主 MCP 配置——动手前必须向用户明示将修改的文件与内容并征得同意（用户拒绝即合法降级，见下方兜底顺序）。**优先用当前 agent 自己的 MCP 注册命令（`claude mcp add` / `codex mcp add` 等，先 `which` 核实存在）；没有注册命令才探测配置文件手改（探到哪个改哪个，不存在的不要新建；JSON 文件写 JSON、TOML 文件写 TOML，格式跟着文件走）：Claude Code `~/.claude.json`（`mcpServers`）、Codex `~/.codex/config.toml`（`[mcp_servers.context7]`）、Cursor `~/.cursor/mcp.json`、Windsurf `~/.codeium/windsurf/mcp_config.json`、Gemini CLI `~/.gemini/settings.json`。注册参数统一：名字 `context7`、stdio、`npx -y @upstash/context7-mcp@latest`（需 Node ≥ 18）。都探不到就问用户一次并把答案钉进 `docs/mymodules/CONFIG.md` 的 `mcp_config_path`。写回后基本都要重启才生效——本次会话如实降级，不许假装调用成功。
 
    **兜底顺序**（仅在已装配或装配做不到时）：官方文档站 → 本机安装内容。官方站结果只作补充。装配做不到的合法情形只有三种：没有 Node ≥ 18、配置文件不可写、用户明确拒绝装。
 
@@ -133,12 +133,12 @@ whenToUse: "任何涉及代码的任务（写、改、重构、选型、交付�
 
 两个 skill 各自独立可用，但播种新项目时这段协议都要在——它是"写过一次的能力永远找得回来"的闭环。
 
-## 项目路由播种（首次在某项目被调用时必做）
+## 项目路由播种（首次在某项目被调用时必做；只读/审查任务不得触发任何写入，写入前必征得用户同意）
 
 description 匹配是概率性的，项目入口文件的路由是结构性的——本 skill 自己负责把后者挂上：
 
 1. 首次在某项目被调用时，检查项目入口文件（`AGENTS.md` / `CLAUDE.md`）是否已有指向本 skill 的编码任务路由。
-2. 没有则追加一条："编码任务（写/改/审代码）先调用 senior-engineer skill（已安装时）；其编码红线无豁免。"两个文件都在就两个都写。
+2. 没有则**先向用户说明将追加的内容、征得同意后**追加一条："编码任务（写/改/审代码）先调用 senior-engineer skill（已安装时）；其编码红线无豁免。"两个文件都在就两个都写。
 3. **路由写指针，规则全文按复用红线 6 落入项目编码规范文档**（如 `CODING.md`；项目文档是自洽权威）。指针注明"skill 已安装时作增强调用（复用检索编排、入库治理、独立子代理审查），未安装不阻断、不报错"。**只挂裸指针、项目内没有规则全文是禁止的**——2026-08-20 实测：宿主技能清单缓存致 skill 无法调用，裸指针项目的红线当场裸奔。
 4. 项目没有入口文件时，告知用户需要手动挂路由，不替他编造项目文档。
 5. 写入后一句话告知用户已挂接。

@@ -88,12 +88,11 @@ You MUST complete each applicable phase before proceeding.
    ```bash
    # Layer 1: Workflow
    echo "=== Secrets available in workflow: ==="
-   echo "IDENTITY: ${IDENTITY:+SET}${IDENTITY:-UNSET}"
+   echo "IDENTITY: ${IDENTITY:+SET}"   # 只打存在性：已设置显示 SET，未设置为空——绝不打印值
 
    # Layer 2: Build script
    echo "=== Env vars in build script: ==="
-   env | grep IDENTITY || echo "IDENTITY not in environment"
-   # 脱敏提醒：env 直打会把变量值写进日志；共享/生产日志改用 "${VAR:+SET}" 只打存在性
+   env | grep -q IDENTITY && echo "IDENTITY present" || echo "IDENTITY not in environment"   # grep -q 零输出：查传播不泄露值
 
    # Layer 3: Signing script
    echo "=== Keychain state: ==="

@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2025 Jesse Vincent
+Copyright (c) 2026 Joe-zizhen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,10 +22,8 @@ SOFTWARE.
 
 ---
 
-This directory contains a derived copy of the `systematic-debugging` skill from
-https://github.com/obra/superpowers (MIT License), with the following
-modifications: the locally added "Loop Diagnosis-Handoff Mode" section was
-removed; `find-polluter.sh` was rewritten (fail-closed behavior, pre-existing
-pollution detection, space-safe paths); `SKILL.md` and `defense-in-depth.md`
-received small fixes (dead references removed, env examples redacted,
-path-guard hardening). All other files are unmodified copies.
+Scope: this license applies to all original content in this repository
+(`experience/`, `senior-engineer/`, `pm/`, `5w-ledger-v1-2/`,
+`first-principle-v2/`, and documentation). The `systematic-debugging/`
+directory is a derivative work of https://github.com/obra/superpowers and is
+licensed separately under `systematic-debugging/LICENSE`.

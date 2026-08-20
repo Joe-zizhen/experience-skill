@@ -8,12 +8,17 @@
 
 - 行动：传 Windows 路径给原生命令（adb、java 等）时加 `MSYS_NO_PATHCONV=1` 前缀，防 Git Bash 把 `/` 开头参数自动转路径；项目路径含中文时，把构建工具的 `TMP`/`TEMP`/`GRADLE_USER_HOME` 显式重定向到项目内或纯 ASCII 路径。
 - 根因：Git Bash 的 MSYS 路径转换与 JVM/构建工具对中文临时目录的兼容问题。
+- 证据：项目 Gradle 构建实战（GRADLE_USER_HOME 重定向，见项目 project.md「在本机执行任何 Gradle 命令前」）；2026-08-20 补录字段，原始证据未留。
 - 死因：迁移到原生 Windows 终端或 WSL 后。
+- 记录：2026-08-20（补录；原始日期未记）
 
 ## [Android 真机] adb 自动化输入与装机前
 
 - 行动：`input text` 无法注入中文（NPE），验收文本用拼音/数字；设备序列号随设备池变化，先 `adb devices` 确认再拼命令。
+- 根因：adb `input text` 的中文注入缺陷（推断，NPE 实测复现）；设备池动态分配导致序列号不固定。
+- 证据：项目真机验收实战（见项目 pitfalls.md「用 adb 装机/验收前」）；2026-08-20 补录字段，原始证据未留。
 - 死因：更换自动化输入方案（如 UI Automator 注入）后复核。
+- 记录：2026-08-20（补录；原始日期未记）
 
 ## [Kimi Code/hook] 在 Windows 上配置任何 hook 时
 

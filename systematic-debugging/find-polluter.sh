@@ -34,17 +34,16 @@ TOTAL=$(printf '%s\n' "$TEST_FILES" | wc -l | tr -d ' ')
 echo "Found $TOTAL test files"
 echo ""
 
+# Pre-existing pollution makes bisection impossible and would be reported as "clean" — fail closed.
+if [ -e "$POLLUTION_CHECK" ]; then
+  echo "ERROR: $POLLUTION_CHECK already exists before any test ran - cannot bisect; remove it first"
+  exit 2
+fi
+
 COUNT=0
 RUN_ERRORS=0
 while IFS= read -r TEST_FILE; do
   COUNT=$((COUNT + 1))
-
-  # Skip if pollution already exists
-  if [ -e "$POLLUTION_CHECK" ]; then
-    echo "WARNING: Pollution already exists before test $COUNT/$TOTAL"
-    echo "   Skipping: $TEST_FILE"
-    continue
-  fi
 
   echo "[$COUNT/$TOTAL] Testing: $TEST_FILE"
 
