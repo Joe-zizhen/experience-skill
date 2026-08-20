@@ -130,8 +130,8 @@ def check_latest():
             if not fn.endswith(TEXT_EXT):
                 continue
             p = os.path.join(dirpath, fn)
-            if os.path.abspath(p) == os.path.abspath(__file__):
-                continue  # 检查器自身必然包含该字面量
+            if rel(p).startswith("tools/check-"):
+                continue  # 检查器自身必然包含该字面量（作为检查目标）
             for i, line in enumerate(open(p, encoding="utf-8", errors="ignore"), 1):
                 if "@latest" in line and "禁" not in line:
                     err("@latest 出现: %s:%d" % (rel(p), i))
