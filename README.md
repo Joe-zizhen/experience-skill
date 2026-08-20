@@ -160,4 +160,5 @@ Claude Code 则拷到 `~/.claude/skills/`。**装完重启宿主**——技能�
 ## 同步
 
 - 本仓是 skill 的唯一权威源：在本地 skill 目录改完后，拷回对应子目录，commit + push。
+- 改任何 skill 的 `description`（路由契约）后，必须过一遍 `evals/trigger-prompts.md` 的正负触发集，防路由撞车与回归。
 - 各项目里的 `docs/experience/`（项目经验）不进本仓，随项目自己的 git 走。
