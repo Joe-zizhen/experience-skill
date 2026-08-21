@@ -45,6 +45,7 @@ routing:
     - name: 严重事故
       flow: ["可逆止血（systematic-debugging 铁律例外）", "systematic-debugging 定位 / 5w-ledger-v1-3 审计", first-principle-v2, senior-engineer]
   after_completion: ["experience 候选条目 → 用户确认后写入"]
+  precedence: "同一 skill 多处存在时：项目内嵌（<项目>/skills/）> 用户级（~/.agents/skills 等）——项目内嵌随仓库版本化，是团队事实"
   reclassification: "任何 skill 执行中发现证据表明主导不确定性类型已变（例：调试中发现不是技术故障而是需求定义错误），停下手头方法、声明证据、按不确定性重选主驱动并带统一状态交接；不带着错误的问题模型硬走完当前方法。"
   back_edges:
     - "systematic-debugging → pm（发现是需求/定义错误而非技术故障）"

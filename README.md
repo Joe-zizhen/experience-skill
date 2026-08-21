@@ -158,7 +158,8 @@ Claude Code 把 `--host-dir` 换成 `~/.claude/skills`，Codex 换成 `~/.codex/
 
 ## 同步与守卫
 
-- 本仓是 skill 的唯一权威源：在本地 skill 目录改完后，拷回对应子目录，commit + push。
+- 拓扑（2026-08-21 起）：日常编辑在 `~/.agents/skills`（活副本，唯一实体）；`~/.codex/skills` 与 `~/.claude/skills` 的六个目录是指向它的 **junction**，改一处三方同变、无需同步（删除 junction 用 `cmd //c rmdir`，**不许 `rm -rf`**——会递归删目标）；项目内嵌 `skills/` 是项目钉版副本，优先级高于用户级（见 `contracts/suite-v1.yaml`）。
+- 发布：`bash tools/publish.sh`（活副本 → 仓克隆 + 哈希读回校验），然后人工 commit + push——发布是决策，不自动。
 - 改任何 skill 的 `description`（路由契约）后，必须过一遍 `evals/trigger-prompts.md` 的正负触发集，防路由撞车与回归；实跑结果记入该文件的结果账本。
 - 提交前跑 `python tools/check-suite.py`：四级标签与绝对词越级、frontmatter 与 description ≤350 字符、禁用 `@latest`、UTF-8 无 BOM/无替换字符、死链接、LICENSE、脚本语法与执行位，全绿才算完。
 - 静态回归再跑 `python tools/check-regression.py`：三轮对抗评审修复的防回潮断言（密钥脱敏、路径守卫、假阴性、死引用、同意门、输出豁免、直通降级等）。
