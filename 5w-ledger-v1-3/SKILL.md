@@ -31,11 +31,13 @@ When a repository or live system is accessible, gather evidence in this order an
 
 Record what you inspected (paths, commands, log excerpts, timestamps) so each ledger row can cite it **and name its source type**: 用户陈述 (user statement) / 闭合叙事 (closed narrative) / 代码 (code) / 日志 (logs) / 复现 (reproduction) / 外部文档 (external doc). With a supplied closed narrative instead, quote the case text as the supporting fact and apply the closed-evidence rules in Workflow step 2 and the precedence gate in step 6.
 
+Evidence comes in two generations. **Existing evidence** is what you collect without executing the system under investigation: logs, code reading, configs, git history, deployment records, user statements, external docs — no matter how many read-only commands you run, it remains existing evidence. **Generated evidence** exists only because the system was executed under your control: a reproduction with its observed output, an instrumented run (debugger, trace, or temporary logging), a single-variable experiment, or a counterfactual/comparison run (method: follow systematic-debugging Phase 1/3 — referenced here, not copied). Record generated evidence under source type 复现, citing the executed command and its observed result.
+
 ## Workflow **[DEFAULT]**
 
 1. State the observed symptom precisely: impact, scope, time window, actual behavior, expected behavior, and reproduction conditions when known. Separate observation from interpretation. Define the analysis boundary, relevant control boundary, and expected invariant when they materially affect what counts as a root cause.
 2. For code-related problems, inspect the relevant code, configuration, tests, logs, and runtime evidence before proposing any cause. **For failures spanning time windows, collect the timeline and verify that each causal link's cause precedes its effect.** For a supplied closed narrative (no live systems), facts stated in the case are admitted as stated and carry narrative-grade confidence (no higher than `probable`); every material link that relies solely on the narrative is capped at `probable`, with the missing artifacts named as verification needs. `confirmed` is reserved for links supported by direct observation, reproduction, or strong converging evidence.
-3. Before accepting each Why answer, require evidence for that causal link: logs, code paths, configs, tests, timelines, user reports, deployment history, or reproducible steps.
+3. Before accepting each Why answer, require evidence for that causal link: logs, code paths, configs, tests, timelines, user reports, deployment history, or reproducible steps. **In live-system investigations, classify every material link's evidence as existing or generated (see Evidence Acquisition).** Every material link left UNRESOLVED or `probable` must carry an **executable verification step**: a specific command or experiment plus its expected discriminating outcome — which observation would confirm the link and which would falsify it. If the step cannot be run now, name the missing environment, access, or artifact. Non-executable phrasings ("collect more logs", "investigate further") do not count as verification steps.
 4. Build an explicit Why chain. Each answer must causally explain the preceding effect and state the cause, mechanism, evidence, source type, and confidence; do not jump to a preferred theory. When independent or converging causes are necessary, branch into multiple Why chains instead of forcing one linear story. Keep the evidence scope explicit for every chain.
 5. Separate categories clearly:
    - Symptom: what was observed.
@@ -45,7 +47,7 @@ Record what you inspected (paths, commands, log excerpts, timestamps) so each le
    - Root cause or causes: the deepest evidence-supported causal conditions within the defined analysis scope.
    - Control gap: the modifiable system, process, design, ownership, or assumption condition that allowed the consequence or recurrence, when distinct from the causal origin.
    - Detection or response gap: why the failure escaped, persisted, or worsened; do not mislabel it as the runtime cause.
-6. Test material causal links and the strongest plausible rival explanation. Require temporal order and a credible mechanism; when practical, use reproduction, comparison, change correlation, or a counterfactual. Treat correlation alone as insufficient. For closed evidence, apply this precedence gate before accepting any causal link, root-cause label, verification need, or final problem statement:
+6. Test material causal links and the strongest plausible rival explanation. Require temporal order and a credible mechanism; when practical, use reproduction, comparison, change correlation, or a counterfactual. Treat correlation alone as insufficient. **Skipping reproduction or experiment for a material link in a live-system investigation requires a written reason why it was impractical; a silent skip is a violation.** For closed evidence, apply this precedence gate before accepting any causal link, root-cause label, verification need, or final problem statement:
    - If a specific property or mechanism is not stated or favored by the given facts, mark that link **UNRESOLVED**; calling it a hypothesis does not admit it.
    - If evidence contradicts a concrete claim as stated, mark it **REFUTED** and name the contradicting fact.
    - If evidence establishes no root cause for a branch, end with `root cause not established`; the output shape does not require every branch to have a root cause.
@@ -75,6 +77,8 @@ Record what you inspected (paths, commands, log excerpts, timestamps) so each le
 - Do not invent evidence. If evidence is missing, say what must be inspected next.
 - Do not name a root cause from memory, intuition, prior impressions, or conversation context alone. For code-related issues, inspect the relevant code or state that the root cause is unconfirmed.
 - Use `confirmed` only for direct observation, reproduction, or strong converging evidence; `probable` when the evidence favors one mechanism over material rivals and the remaining uncertainty does not change causal identity or scope; `hypothesis` when missing evidence could change causal identity or scope. If multiple labels apply, use the lower one.
+- In live-system investigations, split material links before assigning confidence. **Static-fact links** (a config value, code content, a version, a timeline fact): direct observation of the artifact may support `confirmed`. **Runtime-mechanism links** (asserting X produced Y through mechanism M at runtime): `confirmed` requires at least one piece of generated evidence for that exact link — an executed reproduction, an instrumented run (debugger, trace, or temporary logging), a single-variable experiment, or a counterfactual/comparison run, cited with its command and observed result. A mechanism link supported only by existing evidence caps at `probable`. Closed-narrative caps are unchanged.
+- Treating log reading, code reading, or memory as if it were reproduction — and labeling a runtime-mechanism link `confirmed` on that basis — violates the confidence discipline.
 - Preserve scope: never extend a cause beyond the samples, cohorts, time windows, code paths, or failure modes actually explained by its evidence.
 - Preserve confidence: summaries, root-cause labels, and problem statements must not be more certain than the weakest material link in their supporting chain.
 - Analyze multiple cases independently. Do not add cross-case analogies or shared-root theories unless the user explicitly asks for synthesis and the shared mechanism is directly evidenced.
@@ -92,7 +96,7 @@ Provide:
 - Direct and contributing causes; root causes only for branches where evidence establishes them, otherwise state `root cause not established`; control, detection, or response gaps when relevant
 - Strongest material rival explanation, if any, and blind-spot check
 - Actual problem statement
-- Confidence, unknowns, and verification needed
+- Confidence, unknowns, and verification needed — each verification need written as an executable step (specific command or experiment plus expected discriminating outcome), per Workflow step 3
 - **Problem structure characterization** (single-point defect / structural absence / boundary condition) with one-sentence rationale
 - Handoff to first-principle input, only when requested
 
@@ -123,6 +127,7 @@ Apply these rules:
 4. Strong evidence for a candidate event may justify reporting it as a candidate, but does not establish that it affected the observed objects.
 5. Build the final RCA only from `ADMIT` rows. `UNRESOLVED` may appear only as an explicitly open boundary. No final root-cause label or problem statement may introduce a claim absent from the ledger or broaden its scope or confidence.
 6. Do not propose remedies. Keep confirmed mechanisms confirmed; do not become conservative when direct observation, reproduction, or strong converging evidence closes the exact link.
+7. In live-system investigations, an `ADMIT` at `confirmed` confidence for a runtime-mechanism link must cite at least one generated-evidence row (source type 复现) with the executed command and its observed result. Verification needs must be written as executable steps per Workflow step 3.
 
 ## Output Contract **[DEFAULT]**
 
