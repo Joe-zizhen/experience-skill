@@ -154,6 +154,8 @@ Claude Code 把 `--host-dir` 换成 `~/.claude/skills`，Codex 换成 `~/.codex/
 
 通用经验数据目录（可选）：默认 `~/.experience/`（已有通用坑条目）；未配置时只用项目经验。
 
+**项目内嵌（团队共享、host 无关）**：把 skill 目录复制到项目根 `skills/`，并在 `AGENTS.md`/`CLAUDE.md` 写必调指针注明路径——任何能读文件的 agent 都受约束，不依赖宿主的 skill 发现机制。
+
 ## 同步与守卫
 
 - 本仓是 skill 的唯一权威源：在本地 skill 目录改完后，拷回对应子目录，commit + push。
