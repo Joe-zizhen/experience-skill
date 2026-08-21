@@ -117,5 +117,6 @@ whenToUse: "任何涉及代码的任务（写、改、重构、选型、交付�
 1. **项目接入**（两种形态；**B 推荐**，host 无关）：
    - **A. 全文落地**：规则全文落入项目编码规范文档（如 `CODING.md`），入口文件（`AGENTS.md` / `CLAUDE.md`）加路由指针——只挂裸指针、项目内没有全文是禁止的。
    - **B. 项目副本**：把本 skill 目录原样复制到**项目根目录 `skills/senior-engineer/`**——普通目录，不依赖任何宿主的 skill 发现机制，随仓库版本化、团队 clone 即得；入口文件（`AGENTS.md`/`CLAUDE.md`）写必调指针并注明路径。**宿主调不动 Skill 工具时，读该文件即受约束——调用是增强，阅读是地板。** 宿主支持时（征得同意后）可再安装到用户级 skill 目录。
+     B 形态指针标准文案（两个分支缺一不可）：`编码任务（写/改/审代码）先用 senior-engineer：已安装时调用 skill；未安装时读本项目 skills/senior-engineer/SKILL.md 并受其约束。其编码不变量无豁免。`
    已用 A 落地的项目不强制迁移到 B。
 2. **Context7 MCP 装配**：写入宿主 MCP 配置（探到哪个改哪个，不存在的不要新建；JSON 文件写 JSON、TOML 文件写 TOML）。注册参数：名字 `context7`、stdio、`npx -y @upstash/context7-mcp@<版本>`——**版本号要固定且由用户确认，禁止 `@latest`**；需 Node ≥ 18。写回后基本都要重启才生效，本次会话如实降级，不许假装调用成功。
