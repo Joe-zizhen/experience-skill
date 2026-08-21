@@ -1,6 +1,6 @@
 ---
 name: experience
-description: "经验固化与检索：把已付过代价、会重现、能改变行动的知识写成标准条目存入经验地图；项目入口执行轻量只读检索，本 skill 本体仅在写入、维护、显式检索或播种/setup 时被调用。"
+description: "经验固化与检索：把已付过代价、会重现、能改变行动的知识写成标准条目存入经验地图；项目入口执行轻量只读检索，本 skill 本体仅在写入、维护、显式检索或播种/setup 时被调用。写“备忘录功能”类需求归 pm，bug 修复归 systematic-debugging。"
 ---
 
 # experience — 经验固化与检索

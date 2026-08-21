@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: "Use when any technical issue — errors, crashes, failing tests or builds, regressions, wrong output, performance failures, integration failures, or other unexpected behavior — needs systematic root-cause diagnosis before any fix."
+description: "Use when any technical issue — errors, crashes, failing tests or builds, regressions, wrong output, performance failures, integration failures, or other unexpected behavior — needs systematic root-cause diagnosis before any fix. Not for multi-cause or incident-grade analysis (→ 5w-ledger-v1-3); not for building features (→ senior-engineer)."
 ---
 
 # Systematic Debugging

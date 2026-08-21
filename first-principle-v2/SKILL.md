@@ -1,6 +1,6 @@
 ---
 name: first-principle-v2
-description: "Use for deliberate first-principles design: major or hard-to-reverse decisions, unresolved assumptions that change the answer, or explicit first-principles requests. Derive the simplest correct solution from foundational facts; default output is a design or decision, not code."
+description: "Use for deliberate first-principles design: major or hard-to-reverse decisions, unresolved assumptions that change the answer, or explicit first-principles requests. Derive the simplest correct solution from foundational facts; default output is a design or decision, not code. Not for requirement scoping (→ pm)."
 ---
 
 # First Principle Thinking

@@ -1,6 +1,6 @@
 ---
 name: 5w-ledger-v1-3
-description: "Evidence-based Five Whys root cause analysis with an observable evidence ledger. Use only for high-severity incidents, failures spanning a time window or multiple interacting causes, audit/postmortem reviews, and handoffs. Not for routine localized bug fixes."
+description: "Evidence-based Five Whys root cause analysis with an observable evidence ledger. Use only for high-severity incidents, failures spanning a time window or multiple interacting causes — including 'which change introduced it' questions — audit/postmortem reviews, and handoffs. Not for routine localized bug fixes."
 ---
 
 # 5W Ledger Root Cause Analysis
