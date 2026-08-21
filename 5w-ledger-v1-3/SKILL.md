@@ -64,7 +64,7 @@ Record what you inspected (paths, commands, log excerpts, timestamps) so each le
     - **Structural absence**: the mechanism operates through a missing contract, abstraction, invariant enforcement, or ownership boundary.
     - **Boundary condition**: an external or accreted constraint the system was expected to tolerate but could not.
     When evidence is insufficient to distinguish between shapes, state UNRESOLVED with the discriminating evidence needed. State the rationale for each identified shape in one sentence. Do not evaluate fix invasiveness, cost, priority, or implementation approach here.
-12. Provide a handoff for first-principle solution design only when the user requests solution design, remediation, or a combined 5W-to-first-principle workflow. Otherwise stop after the RCA and verification needs. When requested, include the desired invariant, observed failure, Why chain or causal tree, root cause or causes, problem structure characterization, relevant control or detection gaps, evidence and confidence, competing hypotheses, and unknowns. Do not embed a preferred solution.
+12. Provide a handoff for first-principle solution design only when the user requests solution design, remediation, or a combined 5W-to-first-principle workflow. Otherwise stop after the RCA and verification needs. When requested, include the desired invariant, observed failure, Why chain or causal tree, root cause or causes, problem structure characterization, relevant control or detection gaps, evidence and confidence, competing hypotheses, unknowns, the falsifier for each material conclusion (what evidence would overturn it), the decision owner, and the minimal reversible next action. Do not embed a preferred solution.
 
 ## Guardrails **[DEFAULT]**
 

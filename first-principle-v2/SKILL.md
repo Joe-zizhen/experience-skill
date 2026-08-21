@@ -21,7 +21,7 @@ Rule tiers: **[INV]** invariant (violation is a defect), **[DEFAULT]** standard 
 8. **Explain why the solution is not more complex**: map each included element to a required outcome, constraint, or material risk, and name what was intentionally excluded.
 9. **Define validation**: tests, prototypes, measurements, user checks, acceptance and falsification criteria. Test the cheapest decision-changing assumption early and the highest-risk assumption before irreversible investment. For each material gate: hypothesis, cheapest discriminating test, pass/fail threshold when measurable, action on success, fallback on failure. State whether an unresolved fact blocks the decision or only a later stage, and what evidence would reverse it.
 10. **One blind-spot pass** before finalizing: the biggest missing fact, constraint, stakeholder, assumption, or second-order effect. If material, revise once. Stop when the next concern is speculative, low-impact, or not actionable.
-11. **Implementation boundary [INV]**: without implementation authorization, stop at design — name the required approval or input. When authorized, complete the design checkpoint before continuing.
+11. **Implementation boundary [INV]**: without implementation authorization, stop at design — name the required approval or input. When authorized, complete the design checkpoint before continuing. And note: a complete derivation is not a validated design — the design is validated when the verification plan's discriminating signals hold in reality, not when the reasoning looks complete.
 
 ## Guardrails **[DEFAULT]**
 

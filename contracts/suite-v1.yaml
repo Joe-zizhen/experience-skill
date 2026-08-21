@@ -45,9 +45,16 @@ routing:
     - name: 严重事故
       flow: ["可逆止血（systematic-debugging 铁律例外）", "systematic-debugging 定位 / 5w-ledger-v1-3 审计", first-principle-v2, senior-engineer]
   after_completion: ["experience 候选条目 → 用户确认后写入"]
+  reclassification: "任何 skill 执行中发现证据表明主导不确定性类型已变（例：调试中发现不是技术故障而是需求定义错误），停下手头方法、声明证据、按不确定性重选主驱动并带统一状态交接；不带着错误的问题模型硬走完当前方法。"
+  back_edges:
+    - "systematic-debugging → pm（发现是需求/定义错误而非技术故障）"
+    - "first-principle-v2 → systematic-debugging（发现缺运行证据，需先实验取证）"
+    - "senior-engineer → pm（实现中发现约束不成立）"
+    - "5w-ledger-v1-3 → systematic-debugging（因果无法确认，回到观测取证）"
+    - "experience → 现实（条目与当前证据冲突时代码赢，标疑似失效）"
 
 handoff:
-  fields: [observed_behavior, expected_behavior, reproduction, evidence_refs, confirmed_mechanism_or_hypothesis, confidence, scope, unknowns]
+  fields: [observed_behavior, expected_behavior, reproduction, evidence_refs, confirmed_mechanism_or_hypothesis, confidence, scope, unknowns, invariant, falsifier, decision_owner, minimal_reversible_action]
 
 permissions:
   requires_explicit_setup:

@@ -263,6 +263,10 @@ If systematic investigation shows the issue is truly environmental, timing-depen
 
 **But:** treat "no root cause" as a claim that needs evidence — most cases are incomplete investigation.
 
+**Reclassification:** if the investigation shows the problem is not a technical fault at all (requirement error, design constraint, expectation mismatch), stop — declare the evidence and hand off to the right owner (pm / first-principle). Do not force a technical fix to fit a wrong problem model.
+
+**Completion is a reality property:** a fix is complete when the failure disappears in the real environment and does not return during the observation window — not when the test turns green or the writeup is finished.
+
 ## Supporting Techniques **[DEFAULT]**
 
 These techniques are part of systematic debugging and available in this directory:
