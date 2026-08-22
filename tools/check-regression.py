@@ -47,11 +47,27 @@ CHECKS = [
      ["Joe-zizhen", "systematic-debugging"], []),
     ("README.md",
      ["5w-ledger-v1-3", "isolate-polluter"], ["find-polluter.sh"]),
+    ("contracts/suite-v1.yaml",
+     ["workflow_transitions"], ["handoff:"]),
+    ("contracts/workflow.yaml",
+     ["\"increment_events\"", "\"record_after_increment\": true", "\"restore_rule\"", "\"manual_event_edit\": false"],
+     ["workflow_transitions"]),
+    ("contracts/workflow.json",
+     ["\"source_hashes\"", "\"transitions\"", "\"increment_events\"", "\"restore_rule\""], []),
+    ("tools/workflow_contract.py",
+     ["workflow_transitions", "record_after_increment", "生成物与源契约不一致", "read_utf8"], ["yaml.safe_load"]),
+    ("tools/workflow.py",
+     ["approval-required", "recovery-not-needed", "recovery.txn.json", "identity_verified", "os.path.realpath"], []),
+    ("tools/check-suite.py",
+     ["check_generated", "handoff 字段权威", "唯一生成物"], []),
+    ("tools/selftest-workflow.py",
+     ["test_not_in_scope", "test_lifecycle", "test_contract_guards", "WORKFLOW SELFTEST PASSED"], []),
 ]
 
 
 def main():
     failures = []
+    assertion_count = 0
     for relpath, must, must_not in CHECKS:
         p = os.path.join(ROOT, relpath)
         if not os.path.exists(p):
@@ -59,9 +75,11 @@ def main():
             continue
         text = open(p, encoding="utf-8").read()
         for s in must:
+            assertion_count += 1
             if s not in text:
                 failures.append("%s: 缺断言内容 %r" % (relpath, s))
         for s in must_not:
+            assertion_count += 1
             if s in text:
                 failures.append("%s: 回潮内容 %r" % (relpath, s))
     if failures:
@@ -69,7 +87,7 @@ def main():
             print("ERROR: " + f)
         print("\n%d 项回归失败" % len(failures))
         return 1
-    print("ALL REGRESSION CHECKS PASSED (%d files, %d assertions)" % (len(CHECKS), 0))
+    print("ALL REGRESSION CHECKS PASSED (%d files, %d assertions)" % (len(CHECKS), assertion_count))
     return 0
 
 

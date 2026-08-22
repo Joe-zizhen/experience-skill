@@ -1,0 +1,156 @@
+{
+  "epoch": {
+    "increment_events": [
+      "approve",
+      "contract_changed",
+      "scope_changed"
+    ],
+    "record_after_increment": true
+  },
+  "event": {
+    "allowed_types": [
+      "init",
+      "transition",
+      "approve",
+      "recovery",
+      "contract_changed",
+      "scope_changed"
+    ],
+    "required_fields": [
+      "task_id",
+      "epoch",
+      "stage",
+      "event",
+      "actor_label",
+      "timestamp",
+      "contract_hash",
+      "handoff",
+      "evidence_refs"
+    ]
+  },
+  "exit_codes": {
+    "invalid": 1,
+    "not_in_scope": 2,
+    "ok": 0,
+    "stale_epoch": 3
+  },
+  "handoff": {
+    "fields": [
+      "observed_behavior",
+      "expected_behavior",
+      "reproduction",
+      "evidence_refs",
+      "confirmed_mechanism_or_hypothesis",
+      "confidence",
+      "scope",
+      "unknowns",
+      "invariant",
+      "falsifier",
+      "decision_owner",
+      "minimal_reversible_action"
+    ]
+  },
+  "recovery": {
+    "archive_directory": "archive",
+    "manual_event_edit": false,
+    "reason_required": true,
+    "restore_rule": "状态损坏或哈希不一致时，人工裁决后由 approve --recover --reason 原子归档旧日志并进入新 epoch，禁止手改 events.jsonl"
+  },
+  "schema": 1,
+  "scope": {
+    "classes": {
+      "incident-or-multi-cause": {
+        "evidence_kinds": [
+          "production_user_impact",
+          "audit_handoff",
+          "distinct_time_window",
+          "cross_component",
+          "causal_branch"
+        ]
+      },
+      "multi-skill-chain": {
+        "min_primary_skills": 2
+      },
+      "task-book-delivery": {
+        "required_fields": [
+          "task_book_ref",
+          "handoff_fields",
+          "acceptance_items"
+        ]
+      }
+    },
+    "not_in_scope_exit": 2
+  },
+  "source_hashes": {
+    "contracts/suite-v1.yaml": "ee3fafd910be9bac1e917b9571ec18386c90e5df46252bc46c61a8238bbe3d86",
+    "contracts/workflow.yaml": "dd3b42712c674c4537ec99cc533a8ffbc5a6f7241e84c81f229d7858213dce7e"
+  },
+  "stages": {
+    "background": [
+      "experience"
+    ],
+    "execution": [
+      "senior-engineer"
+    ],
+    "initial_stage": "pm",
+    "primary": [
+      "pm",
+      "first-principle-v2",
+      "systematic-debugging",
+      "5w-ledger-v1-3",
+      "senior-engineer"
+    ]
+  },
+  "transitions": [
+    {
+      "from": "pm",
+      "kind": "forward",
+      "to": "first-principle-v2"
+    },
+    {
+      "from": "pm",
+      "kind": "forward",
+      "to": "senior-engineer"
+    },
+    {
+      "from": "first-principle-v2",
+      "kind": "forward",
+      "to": "senior-engineer"
+    },
+    {
+      "from": "first-principle-v2",
+      "kind": "back",
+      "to": "systematic-debugging"
+    },
+    {
+      "from": "systematic-debugging",
+      "kind": "forward",
+      "to": "senior-engineer"
+    },
+    {
+      "from": "systematic-debugging",
+      "kind": "forward",
+      "to": "5w-ledger-v1-3"
+    },
+    {
+      "from": "systematic-debugging",
+      "kind": "back",
+      "to": "pm"
+    },
+    {
+      "from": "5w-ledger-v1-3",
+      "kind": "forward",
+      "to": "first-principle-v2"
+    },
+    {
+      "from": "5w-ledger-v1-3",
+      "kind": "back",
+      "to": "systematic-debugging"
+    },
+    {
+      "from": "senior-engineer",
+      "kind": "back",
+      "to": "pm"
+    }
+  ]
+}

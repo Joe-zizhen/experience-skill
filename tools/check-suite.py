@@ -12,6 +12,8 @@ import re
 import subprocess
 import sys
 
+from workflow_contract import ContractError, check_generated, read_utf8
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKILLS = ["experience", "senior-engineer", "systematic-debugging",
           "5w-ledger-v1-3", "first-principle-v2", "pm"]
@@ -185,9 +187,29 @@ def check_license_and_scripts():
                         err("openai.yaml 结构异常: " + rel(p))
 
 
+def check_workflow_contract():
+    for message in check_generated(ROOT):
+        err(message)
+    try:
+        suite = read_utf8(os.path.join(ROOT, "contracts", "suite-v1.yaml"))
+    except (ContractError, OSError, UnicodeError) as exc:
+        err("无法读取 suite-v1.yaml: " + str(exc))
+        return
+    if re.search(r"(?m)^\s*handoff\s*:", suite):
+        err("suite-v1.yaml 不得保留 handoff 字段权威")
+    contracts_dir = os.path.join(ROOT, "contracts")
+    generated = sorted(name for name in os.listdir(contracts_dir) if name.endswith(".generated.json") or name.startswith("workflow-transitions"))
+    if generated:
+        err("存在废弃的 workflow 生成物: " + ",".join(generated))
+    workflow_json = os.path.join(contracts_dir, "workflow.json")
+    if not os.path.isfile(workflow_json):
+        err("缺唯一生成物 contracts/workflow.json")
+
+
 def main():
     words = load_abs_words()
     check_encoding()
+    check_workflow_contract()
     check_frontmatter()
     if words:
         check_tiers(words)

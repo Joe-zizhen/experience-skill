@@ -165,5 +165,6 @@ Claude Code 把 `--host-dir` 换成 `~/.claude/skills`，Codex 换成 `~/.codex/
 - 静态回归再跑 `python tools/check-regression.py`：三轮对抗评审修复的防回潮断言（密钥脱敏、路径守卫、假阴性、死引用、同意门、输出豁免、直通降级等）。
 - 冻结评测语料（路由 72 / 方法 18 / 链路 8 + rubric + 结果账本）按隔离规则放仓外 `~/.skills-evals/`（规则见该目录 `isolation.md`，语料不进任何仓库）；仓内 `tools/eval-manifest.json` 存各语料文件的 SHA-256 完整性锚点。
 - 门禁证据（仓外账本）：安装门禁 13/13（2026-08-20）；有用性试点双盲 2/2（u-16、u-18，Skill 组胜）——全量 18 任务与路由/方法/链路的实跑结果分批回填各自 `results.jsonl`。
-- 路由、权限、交接、输出优先级的单一事实源是 `contracts/suite-v1.yaml`。
+- 路由转换表的唯一机器来源是 `contracts/suite-v1.yaml` 的 `workflow_transitions`；状态机策略（范围闸、handoff 字段、epoch、退出码与恢复规则）写在 `contracts/workflow.yaml`，唯一生成物是 `contracts/workflow.json`，运行时只读生成物且禁止手改。
+- 跨阶段任务才启用首版状态机：`python tools/workflow.py init|status|check|transition|approve`。它只管交接、epoch、形式完整与失败关闭，不替代 A+ 验收门或阶段内方法纪律；`.workflow/` 是采用项目的运行时状态，不默认进入本仓库 `.gitignore`。
 - 各项目里的 `docs/experience/`（项目经验）不进本仓，随项目自己的 git 走。

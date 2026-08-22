@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "workflow": {
+    "initial_stage": "pm",
+    "stages": [
+      "pm",
+      "first-principle-v2",
+      "systematic-debugging",
+      "5w-ledger-v1-3",
+      "senior-engineer"
+    ],
+    "execution_stages": ["senior-engineer"],
+    "background_stages": ["experience"],
+    "scope": {
+      "classes": {
+        "multi-skill-chain": {
+          "min_primary_skills": 2
+        },
+        "task-book-delivery": {
+          "required_fields": [
+            "task_book_ref",
+            "handoff_fields",
+            "acceptance_items"
+          ]
+        },
+        "incident-or-multi-cause": {
+          "evidence_kinds": [
+            "production_user_impact",
+            "audit_handoff",
+            "distinct_time_window",
+            "cross_component",
+            "causal_branch"
+          ]
+        }
+      },
+      "not_in_scope_exit": 2
+    },
+    "handoff": {
+      "fields": [
+        "observed_behavior",
+        "expected_behavior",
+        "reproduction",
+        "evidence_refs",
+        "confirmed_mechanism_or_hypothesis",
+        "confidence",
+        "scope",
+        "unknowns",
+        "invariant",
+        "falsifier",
+        "decision_owner",
+        "minimal_reversible_action"
+      ]
+    },
+    "event": {
+      "allowed_types": [
+        "init",
+        "transition",
+        "approve",
+        "recovery",
+        "contract_changed",
+        "scope_changed"
+      ],
+      "required_fields": [
+        "task_id",
+        "epoch",
+        "stage",
+        "event",
+        "actor_label",
+        "timestamp",
+        "contract_hash",
+        "handoff",
+        "evidence_refs"
+      ]
+    },
+    "epoch": {
+      "increment_events": [
+        "approve",
+        "contract_changed",
+        "scope_changed"
+      ],
+      "record_after_increment": true
+    },
+    "exit_codes": {
+      "ok": 0,
+      "invalid": 1,
+      "not_in_scope": 2,
+      "stale_epoch": 3
+    },
+    "recovery": {
+      "reason_required": true,
+      "manual_event_edit": false,
+      "archive_directory": "archive",
+      "restore_rule": "状态损坏或哈希不一致时，人工裁决后由 approve --recover --reason 原子归档旧日志并进入新 epoch，禁止手改 events.jsonl"
+    }
+  }
+}
