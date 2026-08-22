@@ -338,8 +338,26 @@ def test_contract_guards():
         assert_exit(code, 1, "BOM 生成物检查")
 
 
+def test_scope_evidence_ref():
+    with tempfile.TemporaryDirectory(prefix="workflow-scope-ev-", dir=str(ROOT)) as temp:
+        root = make_root(temp)
+        scope_path, _, _, _ = prepare_case(root, "scope-evidence")
+        scope = read_json(scope_path)
+        scope["evidence_refs"] = [{
+            "kind": "test-run",
+            "path": "missing.txt",
+            "sha256": "0" * 64,
+            "exit_code": 0,
+        }]
+        write_json(scope_path, scope)
+        code, result = run_cli(root, "init", "--scope", str(scope_path))
+        assert_exit(code, 1, "范围证据悬空")
+        assert_true(result["error"] == "evidence-invalid", "范围证据悬空错误码不稳定")
+        assert_true(not (root / ".workflow").exists(), "范围证据悬空后创建了状态目录")
+
+
 def main():
-    tests = [test_not_in_scope, test_lifecycle, test_contract_guards]
+    tests = [test_not_in_scope, test_scope_evidence_ref, test_lifecycle, test_contract_guards]
     try:
         for test in tests:
             test()

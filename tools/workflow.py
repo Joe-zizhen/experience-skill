@@ -136,6 +136,9 @@ def validate_scope(root, scope, contract):
             raise WorkflowError("not-in-scope", "主 skill 不得重复", 2)
         if any(skill not in stages for skill in skills):
             raise WorkflowError("not-in-scope", "主 skill 含未知名称", 2)
+        refs = scope.get("evidence_refs")
+        if refs:
+            validate_evidence_refs(root, refs)
     elif scope_class == "task-book-delivery":
         for field in classes[scope_class]["required_fields"]:
             if field not in scope:
