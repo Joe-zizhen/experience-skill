@@ -54,9 +54,8 @@ routing:
     - "5w-ledger-v1-3 → systematic-debugging（因果无法确认，回到观测取证）"
     - "experience → 现实（条目与当前证据冲突时代码赢，标疑似失效）"
 
-# workflow_transitions is the only machine-readable transition source. The
-# human routing lanes above remain the explanatory view of the same route map.
-workflow_transitions: [{"from": "pm", "to": "first-principle-v2", "kind": "forward"}, {"from": "pm", "to": "senior-engineer", "kind": "forward"}, {"from": "first-principle-v2", "to": "senior-engineer", "kind": "forward"}, {"from": "first-principle-v2", "to": "systematic-debugging", "kind": "back"}, {"from": "systematic-debugging", "to": "senior-engineer", "kind": "forward"}, {"from": "systematic-debugging", "to": "5w-ledger-v1-3", "kind": "forward"}, {"from": "systematic-debugging", "to": "pm", "kind": "back"}, {"from": "5w-ledger-v1-3", "to": "first-principle-v2", "kind": "forward"}, {"from": "5w-ledger-v1-3", "to": "systematic-debugging", "kind": "back"}, {"from": "senior-engineer", "to": "pm", "kind": "back"}]
+handoff:
+  fields: [observed_behavior, expected_behavior, reproduction, evidence_refs, confirmed_mechanism_or_hypothesis, confidence, scope, unknowns, invariant, falsifier, decision_owner, minimal_reversible_action]
 
 permissions:
   requires_explicit_setup:
