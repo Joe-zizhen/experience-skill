@@ -263,9 +263,26 @@ If systematic investigation shows the issue is truly environmental, timing-depen
 
 **But:** treat "no root cause" as a claim that needs evidence — most cases are incomplete investigation.
 
-**Reclassification:** if the investigation shows the problem is not a technical fault at all (requirement error, design constraint, expectation mismatch), stop — declare the evidence and hand off to the right owner (pm / first-principle). Do not force a technical fix to fit a wrong problem model.
+**Reclassification:** if the investigation shows the problem is not a technical fault at all (requirement error, design constraint, expectation mismatch), stop — declare the evidence and switch to the matching plugin (`pm` / `first-principle-v2`). Envelope optional. Do not force a technical fix to fit a wrong problem model.
 
 **Completion is a reality property:** a fix is complete when the failure disappears in the real environment and does not return during the observation window — not when the test turns green or the writeup is finished.
+
+## Handoff envelope **[DEFAULT]**
+
+可选。单独修完不必写。只有真要把上下文交给另一个 skill 时才写这块。没有的字段写「无」：
+
+- 看见了什么
+- 本该怎样
+- 怎么复现
+- 证据
+- 机制或猜想（够选修复边界，或写还不够）
+- 把握
+- 范围
+- 没查清的
+- 红线
+- 怎样能推翻
+- 谁拍板
+- 最小可退的下一步
 
 ## Supporting Techniques **[DEFAULT]**
 

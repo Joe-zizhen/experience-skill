@@ -93,6 +93,12 @@ def iter_skill_md():
 
 
 def check_tiers(words):
+    """绝对词只许活在当前章节档 = INV。
+
+    章节档只看标题上的 [INV]/[DEFAULT]/[HEURISTIC]。[EXAMPLE] 只管它所在那一行，
+    不改后面整节的档——否则 INV 段里插一句示例，后面的红线会全部误报越级。
+    行内 `code` 不参与绝对词扫描（指针原文、命令字面量）。
+    """
     for p in iter_skill_md():
         cur = None
         in_code = False
@@ -113,11 +119,12 @@ def check_tiers(words):
             marks = TIER_RE.findall(line)
             if len(marks) >= 2:
                 continue  # 图例/目录行（多标签并列）豁免
-            if marks:
+            if marks and marks[0] != "EXAMPLE":
                 cur = marks[0]
             if in_code:
                 continue
-            hit = [w for w in words if w in line]
+            scanned = re.sub(r"`[^`]*`", "", line)
+            hit = [w for w in words if w in scanned]
             if hit and cur != "INV":
                 err("绝对词越级 %s: %s:%d: %s" % (hit, rel(p), i, line.strip()[:60]))
 
@@ -185,6 +192,33 @@ def check_license_and_scripts():
                         err("openai.yaml 结构异常: " + rel(p))
 
 
+def check_constitution():
+    boot = os.path.join(ROOT, "contracts", "boot.md")
+    if not os.path.exists(boot):
+        err("缺 contracts/boot.md")
+    else:
+        t = open(boot, encoding="utf-8").read()
+        for s in SKILLS:
+            if s not in t:
+                err("boot.md 未点名 skill: " + s)
+    readme_p = os.path.join(ROOT, "README.md")
+    if os.path.exists(readme_p):
+        readme = open(readme_p, encoding="utf-8").read()
+        if "contracts/suite-v1.yaml" not in readme:
+            err("README 未指向 contracts/suite-v1.yaml 为路由权威")
+    suite_p = os.path.join(ROOT, "contracts", "suite-v1.yaml")
+    if not os.path.exists(suite_p):
+        err("缺 contracts/suite-v1.yaml")
+        return
+    suite = open(suite_p, encoding="utf-8").read()
+    skills_block = suite.split("skills:", 1)[-1].split("routing:", 1)[0]
+    for s in SKILLS:
+        if s + ":" not in skills_block:
+            err("suite skills 缺: " + s)
+    if "path: contracts/boot.md" not in suite.replace("\\", "/"):
+        err("suite 未登记 boot.md")
+
+
 def main():
     words = load_abs_words()
     check_encoding()
@@ -194,6 +228,7 @@ def main():
     check_latest()
     check_links()
     check_license_and_scripts()
+    check_constitution()
     for w in warnings:
         print("WARN: " + w)
     if errors:

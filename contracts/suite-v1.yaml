@@ -1,11 +1,11 @@
 schema: 1
 suite: myskills
 
-# 规则四级：绝对化词语只允许出现在 [INV] 块内（tools/check-suite.py 按"最近前置标签"判定）
+# 规则四级：绝对化词语只允许出现在 [INV] 章节内
 rules:
   tiers: [INV, DEFAULT, HEURISTIC, EXAMPLE]
   absolute_words: [必须, 禁止, 无豁免, ALWAYS, NEVER, MUST, 不许]
-  absolute_words_note: "出现在非 [INV] 上下文（行内或最近前置块标签）即守卫失败；多标签并列的图例/目录行豁免"
+  absolute_words_note: "章节档看标题上的 INV/DEFAULT/HEURISTIC；EXAMPLE 只管本行、不改后面整节。行内代码不算。多标签并列的图例/目录行豁免。"
 
 skills:
   experience:
@@ -34,9 +34,13 @@ skills:
     driver: primary
     invokes_when: [重大决策, 难逆决策, 假设未决]
 
+boot:
+  path: contracts/boot.md
+  note: "安装器写入宿主入口的认人条，不是第七个 skill。六个都是可单用可搭配的插件；开机卡不强制流水线、不强制传棒。"
+
 routing:
   single_primary_driver: true
-  note: "任一时刻只允许一个主 Skill 驱动流程；其他 Skill 只能接收明确交接，不得一开始全部叠加。只读经验检索（background-readonly）不算主驱动。"
+  note: "六个都是独立插件，可单用可搭配。同一时刻一个主插件即可，不要六个一起当主驱动把窗口塞满。只读经验检索（background-readonly）不算主驱动。搭配不必走固定流水线，也不强制传棒。"
   lanes:
     - name: 需求不清
       flow: [pm, "first-principle-v2（重大决策时交接）", senior-engineer]
@@ -46,7 +50,7 @@ routing:
       flow: ["可逆止血（systematic-debugging 铁律例外）", "systematic-debugging 定位 / 5w-ledger-v1-3 审计", first-principle-v2, senior-engineer]
   after_completion: ["experience 候选条目 → 用户确认后写入"]
   precedence: "同一 skill 多处存在时：项目内嵌（<项目>/skills/）> 用户级（~/.agents/skills 等）——项目内嵌随仓库版本化，是团队事实"
-  reclassification: "任何 skill 执行中发现证据表明主导不确定性类型已变（例：调试中发现不是技术故障而是需求定义错误），停下手头方法、声明证据、按不确定性重选主驱动并带统一状态交接；不带着错误的问题模型硬走完当前方法。"
+  reclassification: "任何 skill 执行中发现证据表明该换另一个插件（例：调试中发现不是技术故障而是需求定义错误），停下、声明证据、换一个。信封可选，不强制传棒。不带着错误的问题模型硬走完当前方法。"
   back_edges:
     - "systematic-debugging → pm（发现是需求/定义错误而非技术故障）"
     - "first-principle-v2 → systematic-debugging（发现缺运行证据，需先实验取证）"
@@ -56,6 +60,8 @@ routing:
 
 handoff:
   fields: [observed_behavior, expected_behavior, reproduction, evidence_refs, confirmed_mechanism_or_hypothesis, confidence, scope, unknowns, invariant, falsifier, decision_owner, minimal_reversible_action]
+  labels: [看见了什么, 本该怎样, 怎么复现, 证据, 机制或猜想, 把握, 范围, 没查清的, 红线, 怎样能推翻, 谁拍板, 最小可退的下一步]
+  emit_when: "可选。只有真要把上下文交给另一个 skill 时才写；单独用、搭配用都不强制。没有的字段写「无」。"
 
 permissions:
   requires_explicit_setup:
@@ -70,6 +76,7 @@ output_precedence:
   - "用户指定格式 > skill 默认输出契约"
   - "宿主/项目强制前缀（如经验命中标记）不违反任何输出契约"
   - "命中标记仅在项目明确要求时输出"
+  - "开工回执仅在项目短契约明确要求时输出；未要求则不准当开工仪式"
 
 descriptions:
   max_chars: 350

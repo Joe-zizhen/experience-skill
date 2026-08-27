@@ -98,7 +98,7 @@ Provide:
 - Actual problem statement
 - Confidence, unknowns, and verification needed — each verification need written as an executable step (specific command or experiment plus expected discriminating outcome), per Workflow step 3
 - **Problem structure characterization** (single-point defect / structural absence / boundary condition) with one-sentence rationale
-- Handoff to first-principle input, only when requested
+- Handoff to first-principle input, only when requested — then emit the shared envelope (write `无` if a field does not apply): 看见了什么 / 本该怎样 / 怎么复现 / 证据 / 机制或猜想 / 把握 / 范围 / 没查清的 / 红线 / 怎样能推翻 / 谁拍板 / 最小可退的下一步. Standalone RCA does not need an envelope.
 
 **Compressed form** — for a localized, well-evidenced failure: merge the headings into one short narrative and keep the ledger to the 3–6 material claims, but never omit the causal chain, the root problem, confidence, or the decisive verification, and always keep the two-section output contract. **Full form** — for a high-impact or multi-causal incident: include every heading above.
 

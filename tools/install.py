@@ -23,6 +23,8 @@ import time
 ALL_SKILLS = ["experience", "senior-engineer", "systematic-debugging",
               "5w-ledger-v1-3", "first-principle-v2", "pm"]
 SKIP_NAMES = {".git", "__pycache__", ".DS_Store"}
+BOOT_START = "<!-- myskills-boot:start -->"
+BOOT_END = "<!-- myskills-boot:end -->"
 
 
 def sha256_file(p):
@@ -87,6 +89,48 @@ def save_state(state_dir, state):
         f.write("\n")
 
 
+def host_instruction_file(host_dir):
+    parent = os.path.dirname(host_dir)
+    name = os.path.basename(parent).lower()
+    if name == ".claude":
+        return os.path.join(parent, "CLAUDE.md")
+    if name in (".codex", ".agents"):
+        return os.path.join(parent, "AGENTS.md")
+    return None
+
+
+def inject_boot(source, host_dir, dry_run=False):
+    boot_src = os.path.join(source, "contracts", "boot.md")
+    if not os.path.isfile(boot_src):
+        print("boot: 无 contracts/boot.md，跳过")
+        return
+    dest = host_instruction_file(host_dir)
+    if not dest:
+        print("boot: 未识别宿主入口（上一级不是 .claude/.agents/.codex），跳过")
+        return
+    body = open(boot_src, encoding="utf-8").read().strip()
+    block = "%s\n%s\n%s\n" % (BOOT_START, body, BOOT_END)
+    if dry_run:
+        print("dry-run boot -> %s" % dest)
+        return
+    existing = ""
+    if os.path.isfile(dest):
+        existing = open(dest, encoding="utf-8").read()
+    if BOOT_START in existing and BOOT_END in existing:
+        pre = existing.split(BOOT_START, 1)[0]
+        post = existing.split(BOOT_END, 1)[1]
+        if post.startswith("\n"):
+            post = post[1:]
+        new = pre + block + post
+    else:
+        new = block + ("\n" if existing else "") + existing
+    tmp = dest + ".tmp-boot"
+    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+        f.write(new)
+    os.replace(tmp, dest)
+    print("boot -> %s" % dest)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", required=True, help="skills 仓库目录（含各 skill 子目录）")
@@ -144,6 +188,7 @@ def main():
 
         if args.dry_run:
             print("dry-run: 校验通过，未改动宿主目录")
+            inject_boot(source, host_dir, dry_run=True)
             return 0
 
         # 2 备份现有同名目录
@@ -169,6 +214,10 @@ def main():
 
         save_state(state_dir, state)
         shutil.rmtree(backup_root, ignore_errors=True)
+        try:
+            inject_boot(source, host_dir, dry_run=False)
+        except Exception as be:
+            print("boot 写入失败（skill 已安装）: %s" % be)
         print("DONE: %d skills installed, state -> %s" % (len(installed), state_path(state_dir)))
         return 0
 

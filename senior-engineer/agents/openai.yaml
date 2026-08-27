@@ -1,7 +1,7 @@
 interface:
   display_name: "Senior Engineer"
   short_description: "Evidence-gated coding: 小改/大改 first, then A/B/C-lite/满配 C/D cells"
-  default_prompt: "Use $senior-engineer. Classify 小改/大改 by the closed checklist — do not self-judge. 小改 = A/B/C-lite: no review, no seed ask, no Context7 ask, no copy-skill ask. 大改 = 满配 C, or D if new dep/catalog: subagent review; ask seed if no INDEX; ask Context7 if looking up a chosen library; do not copy this skill into the repo unless the user says the repo must carry the rules. Evidence only for table cells (command + hits). Invariants have no exemption unless the user disabled the skill this turn."
+  default_prompt: "Use $senior-engineer. Classify 小改/大改 by the closed checklist — do not self-judge. 小改 = A/B/C-lite only: walking 五步, 对抗审查, or setup/seed/hook/Context7 asks is a defect. 大改 = 满配 C, or D if new dep/catalog: those procedures stay in this file and must be followed; subagent review; ask seed if no INDEX; ask Context7 if looking up a chosen library; do not copy this skill into the repo unless the user says the repo must carry the rules. Evidence only for table cells (command + hits). Invariants have no exemption unless the user disabled the skill this turn."
 
 policy:
   allow_implicit_invocation: true

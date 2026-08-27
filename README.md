@@ -1,28 +1,16 @@
 # Myskills — 个人 AI agent skill 集合
 
-一套让 AI agent「想得清、记得住、写得正、修得准」的闭环工具箱。六个 skill 各管一段，合起来覆盖从「脑子里一个模糊想法」到「交付、验收、沉淀经验」的全流程。
+六个独立插件，可单用可搭配。合起来能覆盖从想法到交付、验收、记经验，但没有必须走完的全流程，也没有开机 skill。
 
 全套规则分四级（`contracts/suite-v1.yaml` 定义，`tools/check-suite.py` 静态守卫）：**[INV]** 不变量（违反即缺陷，绝对化词语只许活在这里）、**[DEFAULT]** 默认策略（项目事实或用户要求可覆盖）、**[HEURISTIC]** 审查信号（只触发复核，不定罪）、**[EXAMPLE]** 示例。
 
-## 全景：它们怎么连成一条流水线
+## 全景：六个插件，不是一条流水线
 
-```
-你的想法
-  ↓
-pm            需求入口：反问、评审、出任务书
-  ↓
-first-principle-v2   重大/难逆的技术决策（按需）
-  ↓
-senior-engineer      编码执行：不变量、行为策略、复用、审查
-  ↓
-systematic-debugging 修 bug（按需）｜ 5w-ledger-v1-3 事故复盘（按需）
-  ↓
-experience    经验沉淀：坑、入口、决策、功能全部记下来
-  ↓
-下一个任务自动避坑 ← 闭环
-```
+六个 skill 各管一件事，**可单独用，可搭配用**。没有开机 skill，也没有必须接棒传棒的全流程。
 
-路由纪律：任一时刻只允许一个主 Skill 驱动流程，其余只接显式交接；只读经验检索是背景层，不算主驱动。
+谁在什么场合用，以 [`contracts/suite-v1.yaml`](contracts/suite-v1.yaml) 为准。安装器写入宿主入口的 [`contracts/boot.md`](contracts/boot.md) 只是认人条：对得上谁就用谁。经验检索是后台，不算主插件。
+
+只有真要把上下文交给另一个 skill 时，才用得上交接信封。单独用不必写。
 
 ## 速览：什么情况用哪个
 
@@ -139,7 +127,9 @@ experience    经验沉淀：坑、入口、决策、功能全部记下来
 
 ---
 
-## 安装（Kimi Code / Claude Code / Codex）
+## 安装
+
+新电脑只走这一条：克隆 → 安装器 → 重启宿主。
 
 ```bash
 git clone https://github.com/Joe-zizhen/experience-skill.git ~/skills-collection
@@ -148,18 +138,12 @@ python ~/skills-collection/tools/install.py --source ~/skills-collection --host-
 
 Claude Code 把 `--host-dir` 换成 `~/.claude/skills`，Codex 换成 `~/.codex/skills`。**装完重启宿主**——技能清单是会话启动时加载的缓存，不重启看不见新 skill。
 
-安装器（替代 `cp -r`）：暂存 → SHA-256 校验 → 备份 → 原子替换 → 读回哈希，失败自动回滚；`--verify-only` 随时读回校验；`--skills` 可只装指定几个。
+安装器会：把六个 skill 拷进宿主 skills 目录，并把开机卡写入入口（`.claude/CLAUDE.md`，或 `.agents` / `.codex` 下的 `AGENTS.md`）。不要把整仓塞进 skills 文件夹。`--skills` 可只装其中几个。
 
-宿主验证状态（2026-08-20）：kimi(`.agents`)/claude(`.claude`)/codex(`.codex`) 三种目录布局的安装、升级、失败回滚、哈希读回全部通过。
+跨项目经验：有 `~/.experience/general.md`（或 `EXPERIENCE_DATA_DIR`）就读，没有就跳过、不建。新电脑不会自动出现旧电脑的内容。
 
-通用经验数据目录（可选）：默认 `~/.experience/general.md`；有文件就读，没有就跳过、不建。新电脑不会自动出现旧电脑的内容。
+**项目内嵌（团队共享）**：把要用的 skill 目录复制到项目根 `skills/`，并在 `AGENTS.md`/`CLAUDE.md` 写指针。这是给仓库钉版用的，不是新电脑的默认故事。
 
-**项目内嵌（团队共享、host 无关）**：把 skill 目录复制到项目根 `skills/`，并在 `AGENTS.md`/`CLAUDE.md` 写必调指针注明路径——任何能读文件的 agent 都受约束，不依赖宿主的 skill 发现机制。
+## 维护者
 
-## 同步与守卫
-
-- 拓扑（2026-08-21 起）：日常编辑在 `~/.agents/skills`（活副本，唯一实体）；`~/.codex/skills` 与 `~/.claude/skills` 的六个目录是指向它的 **junction**，改一处三方同变、无需同步（删除 junction 用 `cmd //c rmdir`，**不许 `rm -rf`**——会递归删目标）；项目内嵌 `skills/` 是项目钉版副本，优先级高于用户级（见 `contracts/suite-v1.yaml`）。
-- 发布：`bash tools/publish.sh`（活副本 → 仓克隆 + 哈希读回校验），然后人工 commit + push——发布是决策，不自动。
-- 提交前跑 `python tools/check-suite.py`：四级标签与绝对词越级、frontmatter 与 description ≤350 字符、禁用 `@latest`、UTF-8 无 BOM/无替换字符、死链接、LICENSE、脚本语法与执行位，全绿才算完。
-- 路由、权限、交接、输出优先级的单一事实源是 `contracts/suite-v1.yaml`。
-- 各项目里的 `docs/experience/`（项目经验）不进本仓，随项目自己的 git 走。
+日常改活副本 `~/.agents/skills`。本机若用 junction 把 `.claude/skills`、`.codex/skills` 指过去，改一处即可（删 junction 用 `cmd //c rmdir`，不要 `rm -rf`）。发布：`bash tools/publish.sh`，然后人工 commit + push。提交前跑 `python tools/check-suite.py`。谁在什么场合用，以 `contracts/suite-v1.yaml` 为准。项目里的 `docs/experience/` 不进本仓。
