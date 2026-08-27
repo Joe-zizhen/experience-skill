@@ -1,7 +1,7 @@
 interface:
   display_name: "PM — Idea to Task Brief"
-  short_description: "Requirements interview, direction gate, executable task brief for execution agents"
-  default_prompt: "Use $pm to turn this idea into requirements and an executable task brief."
+  short_description: "Triage by 三型+能否直通, 带路链, steel-man gate, executable task brief"
+  default_prompt: "Use $pm. Speak to the user only in plain language — no jargon, no skill-title words. Classify 三型 and 能否直通 by [INV] 7 closed checklist — do not self-judge. 直通: skip 带路链 and steel-man gate; the request itself is approval; still requires opening three lines in plain language, testable acceptance, non-goals, and hand-run commands. 不直通: walk 带路链 in order (wish → why → causal → done-looks-like → non-goals → blind spots); do not ask how to implement or what stack as the main path. Before spec: steel-man gate — restate the real problem, strongest case for and against, name the real disagreement and the variable that would flip the conclusion, ask exactly one critical question; after the answer, give judgment, reasons, and next action. Execution-type briefs must keep scope/non-goals/acceptance/map paths; point to senior-engineer for coding rules, do not copy them. Invariants have no exemption."
 
 policy:
   allow_implicit_invocation: true
