@@ -150,7 +150,7 @@ Claude Code 把 `--host-dir` 换成 `~/.claude/skills`，Codex 换成 `~/.codex/
 
 安装器（替代 `cp -r`）：暂存 → SHA-256 校验 → 备份 → 原子替换 → 读回哈希，失败自动回滚；`--verify-only` 随时读回校验；`--skills` 可只装指定几个。
 
-宿主验证状态（2026-08-20，安装门禁 13/13 实测）：kimi(`.agents`)/claude(`.claude`)/codex(`.codex`) 三种目录布局的安装、升级、失败回滚、哈希读回全部通过；证据账本在仓外 `~/.skills-evals/install/`。
+宿主验证状态（2026-08-20）：kimi(`.agents`)/claude(`.claude`)/codex(`.codex`) 三种目录布局的安装、升级、失败回滚、哈希读回全部通过。
 
 通用经验数据目录（可选）：默认 `~/.experience/`（已有通用坑条目）；未配置时只用项目经验。
 
@@ -160,10 +160,6 @@ Claude Code 把 `--host-dir` 换成 `~/.claude/skills`，Codex 换成 `~/.codex/
 
 - 拓扑（2026-08-21 起）：日常编辑在 `~/.agents/skills`（活副本，唯一实体）；`~/.codex/skills` 与 `~/.claude/skills` 的六个目录是指向它的 **junction**，改一处三方同变、无需同步（删除 junction 用 `cmd //c rmdir`，**不许 `rm -rf`**——会递归删目标）；项目内嵌 `skills/` 是项目钉版副本，优先级高于用户级（见 `contracts/suite-v1.yaml`）。
 - 发布：`bash tools/publish.sh`（活副本 → 仓克隆 + 哈希读回校验），然后人工 commit + push——发布是决策，不自动。
-- 改任何 skill 的 `description`（路由契约）后，必须过一遍 `evals/trigger-prompts.md` 的正负触发集，防路由撞车与回归；实跑结果记入该文件的结果账本。
 - 提交前跑 `python tools/check-suite.py`：四级标签与绝对词越级、frontmatter 与 description ≤350 字符、禁用 `@latest`、UTF-8 无 BOM/无替换字符、死链接、LICENSE、脚本语法与执行位，全绿才算完。
-- 静态回归再跑 `python tools/check-regression.py`：三轮对抗评审修复的防回潮断言（密钥脱敏、路径守卫、假阴性、死引用、同意门、输出豁免、直通降级等）。
-- 冻结评测语料（路由 72 / 方法 18 / 链路 8 + rubric + 结果账本）按隔离规则放仓外 `~/.skills-evals/`（规则见该目录 `isolation.md`，语料不进任何仓库）；仓内 `tools/eval-manifest.json` 存各语料文件的 SHA-256 完整性锚点。
-- 门禁证据（仓外账本）：安装门禁 13/13（2026-08-20）；有用性试点双盲 2/2（u-16、u-18，Skill 组胜）——全量 18 任务与路由/方法/链路的实跑结果分批回填各自 `results.jsonl`。
 - 路由、权限、交接、输出优先级的单一事实源是 `contracts/suite-v1.yaml`。
 - 各项目里的 `docs/experience/`（项目经验）不进本仓，随项目自己的 git 走。
