@@ -15,15 +15,15 @@
 
 | 信号文件/特征 | 判定 | 隔离单元（code_location） |
 | --- | --- | --- |
-| `settings.gradle(.kts)` + 模块用 `com.android.*` 插件 | Android | 新建 `:mymodules` library 模块 |
-| `settings.gradle(.kts)` / `pom.xml`，无 Android 插件 | JVM 后端/库 | 新建 `mymodules` 子模块（Gradle module / Maven module） |
-| `package.json` 有 `workspaces`（或 pnpm-workspace.yaml） | 前端/Node monorepo | 新建 `packages/mymodules` workspace 包 |
-| `package.json` 无 workspaces，含 vue/react/next/svelte 等 | 单体前端 | `src/mymodules/` 目录 + 路径别名 + 导入边界约定 |
-| `package.json` 为纯后端（express/koa/nestjs 等） | Node 后端 | `src/mymodules/` 目录 + 导入边界约定 |
-| `go.mod` | Go | `internal/mymodules/` 包（天然隔离） |
-| `pyproject.toml` / `requirements.txt` / `setup.py` | Python | `mymodules/` 包目录（含 `__init__.py`） |
-| `Cargo.toml`（含 `[workspace]`） | Rust | 新建 workspace crate `mymodules` |
-| `*.sln` / `*.csproj` | .NET | 新建 class library 项目 `mymodules` 并加入解决方案 |
+| `settings.gradle(.kts)` + 模块用 `com.android.*` 插件 | Android | 现有 library/shared 模块优先；没有再问用户；无现成边界时的候选名为 `:mymodules`，不是见到信号就新建 |
+| `settings.gradle(.kts)` / `pom.xml`，无 Android 插件 | JVM 后端/库 | 现有 shared/领域模块优先；没有再问用户；无现成边界时的候选名为 `mymodules` 子模块 |
+| `package.json` 有 `workspaces`（或 pnpm-workspace.yaml） | 前端/Node monorepo | 现有 shared/领域包优先；没有再问用户；无现成边界时的候选名为 `packages/mymodules` |
+| `package.json` 无 workspaces，含 vue/react/next/svelte 等 | 单体前端 | 现有 shared/领域目录优先；没有再问用户；无现成边界时的候选名为 `src/mymodules/`（目录+别名），不是默认新建指令 |
+| `package.json` 为纯后端（express/koa/nestjs 等） | Node 后端 | 现有 shared/领域目录优先；没有再问用户；无现成边界时的候选名为 `src/mymodules/` |
+| `go.mod` | Go | 现有 `internal/` 领域包优先；没有再问用户；无现成边界时的候选名为 `internal/mymodules/` |
+| `pyproject.toml` / `requirements.txt` / `setup.py` | Python | 现有包/领域目录优先；没有再问用户；无现成边界时的候选名为 `mymodules/` |
+| `Cargo.toml`（含 `[workspace]`） | Rust | 现有 workspace crate 优先；没有再问用户；无现成边界时的候选名为 `mymodules` |
+| `*.sln` / `*.csproj` | .NET | 现有 class library 优先；没有再问用户；无现成边界时的候选名为 `mymodules` |
 | 全部不命中 / 多栈混合仓库 | 未知/混合 | 问用户；多栈仓库按子项目分别钉 CONFIG |
 
 ## Android (Gradle)
