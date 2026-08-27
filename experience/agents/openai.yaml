@@ -1,7 +1,7 @@
 interface:
   display_name: "Experience"
   short_description: "Cross-session memory: pitfalls, entries, decisions — record once, retrieve at decision points"
-  default_prompt: "Use $experience to check the project experience index before starting; if this session hits a pitfall or a hard-to-find entry point, draft an entry for my confirmation."
+  default_prompt: "Use $experience only to write an entry, maintain/clean, explicit search, or seed/setup. Daily retrieval is the project short contract (and hook if installed), not this skill body. Do not load this skill as a per-task startup ritual."
 
 policy:
   allow_implicit_invocation: true
