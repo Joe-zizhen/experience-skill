@@ -11,6 +11,8 @@ Random fixes waste time and create new bugs. Quick patches mask underlying issue
 
 **Core principle:** the goal of diagnosis is the *minimal sufficient causal explanation* — enough understanding of the mechanism to choose the correct fix boundary. Do not chase an unattainable ultimate root cause. When the true origin is outside your control (upstream service, platform, vendor), fixing at the earliest boundary you *do* control is legitimate, as long as the boundary is named explicitly.
 
+This plugin is a corollary of the suite law: undiagnosed faults. A green test is not completion. Wrong uncertainty type → switch plugin.
+
 Symptom patches without a causal explanation are failure. Rules in this skill are tiered: **[INV]** invariants (violations are defects), **[DEFAULT]** standard policy (project facts or the user may override), **[HEURISTIC]** review signals (trigger a check, never a verdict by themselves), **[EXAMPLE]** illustrations (no normative force).
 
 ## The Iron Law **[INV]**

@@ -1,60 +1,89 @@
 ---
 name: first-principle-v2
-description: "Use for deliberate first-principles design: major or hard-to-reverse decisions, unresolved assumptions that change the answer, or explicit first-principles requests. Derive the simplest correct solution from foundational facts; default output is a design or decision, not code. Not for requirement scoping (→ pm)."
+description: "当前选项集像是被类比塌缩、假设一变答案就变、或用户明确要第一性原理时使用。仅难回头或仅重大不够。默认停在设计。需求不清走 pm，根因未定走 systematic-debugging，只是实现走 senior-engineer。"
 ---
 
-# First Principle Thinking
+# first-principle-v2 — 第一性原理
 
-Use first-principle thinking to design forward from foundational facts instead of copying existing patterns. The default output is a design or decision, not an implementation. Strip away assumptions, identify irreducible truths and constraints, then derive the simplest solution that directly satisfies them. The simplest correct solution minimizes total lifecycle complexity, not merely code size or component count.
+本插件是套件定律的推论：选项集可能被类比塌缩。默认产出是设计或决策，不是代码。
 
-Rule tiers: **[INV]** invariant (violation is a defect), **[DEFAULT]** standard policy, **[HEURISTIC]** review signal, **[EXAMPLE]** illustration.
+第一性原理是一种思考，不是一种文档格式。本文件只写它怎么做。按标题填空、把旧方案用推导的口气重说一遍、把句子分成四类就交差，都不是它。
 
-## Workflow **[DEFAULT]**
+规则分两级：**[INV]** 违反即没发生，无豁免；**[DEFAULT]** 项目事实或用户要求可覆盖。
 
-1. **Define the target outcome in one sentence**: what must become observably true, how success will be judged, and the relevant time horizon. Do not embed a preferred implementation unless it is a real constraint.
-2. **Separate decision inputs**: observed facts / required outcomes / constraints / assumptions. Classify each constraint — **design constraints** (challengeable; authority derives from the decision that made them) vs **accretion constraints** (boundary conditions for this design; changing them is a separate project). A user statement is a requirement or claim, not automatically an observed fact. Detailed taxonomy, external date-locked constraints, and team-capability handling: [references/constraint-taxonomy.md](references/constraint-taxonomy.md).
-3. **Challenge every decision-shaping assumption and every constraint** whose authority, necessity, or factual basis is not established. For each challenged design constraint, name the decision-owner with override authority and the minimum evidence that would reopen it; unknown owner or threshold → staged decision gate (step 7).
-4. **Decompose** the problem into needs, capabilities, and invariants until the remaining elements are basic and hard to dispute. Each need must name a capability the system provides, not restate a required outcome; if it restates one, decompose one level deeper.
-5. **Verify observed-fact consistency before rebuilding**: any alternative rejected against a factual claim must not contradict a listed observed fact — resolve the conflict first (downgrade the fact, reconsider the rejection, or narrow the rejection's scope). Then rebuild the smallest design that satisfies outcomes and constraints with least total lifecycle complexity. Close each material invariant by naming its authoritative owner, enforcement boundary, failure behavior, and recovery path — in proportion to material risk.
-6. **Brownfield gate: patch-pile threshold.** Skip for greenfield. For components with existing code, evaluate whether accumulated patches have crossed the rewrite threshold (signal: drift and coupling, not count): [references/rewrite-threshold.md](references/rewrite-threshold.md). If migration is needed, decompose it into independently verifiable, independently reversible steps: [references/migration.md](references/migration.md).
-7. **Compare against current and conventional approaches only after deriving the baseline.** When the request names a technology or architecture, first derive a technology-neutral baseline and a no-new-component option; retain the named choice only if it measurably earns its complexity. For overload/cascading-failure/dormant-defect shapes, run one bounded pattern-recruitment pass: [references/pattern-recruitment.md](references/pattern-recruitment.md). Generate multiple candidates only when material uncertainty remains; do not manufacture weak alternatives. Under material uncertainty, choose the most reversible viable course and turn unresolved evidence into a staged decision gate — never use "more research" as a substitute for a decision when a bounded choice is possible.
-8. **Explain why the solution is not more complex**: map each included element to a required outcome, constraint, or material risk, and name what was intentionally excluded.
-9. **Define validation**: tests, prototypes, measurements, user checks, acceptance and falsification criteria. Test the cheapest decision-changing assumption early and the highest-risk assumption before irreversible investment. For each material gate: hypothesis, cheapest discriminating test, pass/fail threshold when measurable, action on success, fallback on failure. State whether an unresolved fact blocks the decision or only a later stage, and what evidence would reverse it.
-10. **One blind-spot pass** before finalizing: the biggest missing fact, constraint, stakeholder, assumption, or second-order effect. If material, revise once. Stop when the next concern is speculative, low-impact, or not actionable.
-11. **Implementation boundary [INV]**: without implementation authorization, stop at design — name the required approval or input. When authorized, complete the design checkpoint before continuing. And note: a complete derivation is not a validated design — the design is validated when the verification plan's discriminating signals hold in reality, not when the reasoning looks complete.
+## 定义 [INV]
 
-## Guardrails **[DEFAULT]**
+引擎是：**钉对象 → 拆开对象 → 独立评估零件 → 找出缺口 → 再组装**。分类句子、按现成方案的模块缝切开、把候选方案当对象来拆，都不是它。
 
-- Do not use first principles as an excuse to ignore proven constraints or domain knowledge.
-- Do not over-decompose routine tasks unless explicitly invoked.
-- Do not implement by default; follow the implementation boundary.
-- Ask clarifying questions when a foundational fact is missing and guessing would change the solution.
-- Prefer reversible decisions under material uncertainty.
-- **State uncertainty directly. Unmeasured quantities stay UNKNOWN — never fabricate precise-looking thresholds, scores, or statistics without a measured source.**
-- Preserve the existing codebase style and contracts unless a first-principle argument clearly justifies changing them.
-- Exclude speculative extensibility, premature abstraction, and features that do not serve a required outcome or mitigate a material risk.
-- Maintain decision density: include a fact, decomposition, alternative, or check only when it changes the selected course, its boundary, a material risk, or the validation order.
+顺序可循环：切错、尺不对、缺口打偏，必须回到对应步。缺的是引擎，不是编号。
 
-## Conditional Checks **[DEFAULT]**
+### 1. 钉对象，点名类比基线
 
-- For technology choices, verify current official or primary recommendations, versions, maintenance status, security posture, compatibility, and ecosystem maturity. If verification is unavailable, keep the claim as an assumption. Newer is not automatically better.
-- For costly, high-risk, or hard-to-reverse decisions, examine failure modes, reversibility, migration and rollback, operational ownership, and staged validation gates.
-- For a 5W handoff, consume it per [references/5w-handoff.md](references/5w-handoff.md): treat `probable` or `hypothesis` causes as assumptions to validate before irreversible design, and verify the handoff's load-bearing facts against the cited materials when they remain accessible.
+对象是可假目标所依附的事和物，不是桌上那些候选方案。
 
-## Output Shape **[DEFAULT]**
+**对象检验：** 对象是目标所依附的事或物，必须能不靠候选方案指认。事：谁、在什么场合、对象上发生了什么事实（不是一块屏幕、一个产品名）。物：不靠做法词也能指出的那件东西（电池、一笔钱、一份记录）。指认里出现做法词（例如平台、中台、中心、系统、服务、引擎、门户、框架、微服务）= 还在拆方案 = 没发生。举例不是封闭清单。
 
-Provide:
+先写出当前默认答案从哪来：竞品、旧设计、整包市价、行业惯例、用户原话。有则给可核对来源；没有就写「无旧方案」。用户的话默认是主张，不是事实。用户确认一种做法，仍是主张。
 
-- Desired outcome
-- Observed facts, required outcomes, and constraints (with design vs accretion classification)
-- Current technology facts, if relevant
-- Decision-shaping assumptions challenged and their status, if any
-- Derived baseline and alternatives when material
-- Selected solution and why it is not more complex
-- **Incremental migration path** — when the change touches existing consumers, state, data, or contracts (per [references/migration.md](references/migration.md)); for a localized change with no consumer or state impact, state in one sentence why none is needed. Greenfield: skip.
-- Blind-spot check
-- Tradeoffs and reversibility
-- Validation plan and decision-reversal conditions
-- Implementation boundary / next action
+目标写成可假的结果，不是手段。用户给的目标若是类比（「要做平台」「要像 X」），点名后放下，改写成可观察的结果；结果里不得再出现被放下的手段词。程度词（实时、高可用、简单、智能）必须落成可测的量，否则标未知，不准当目标已经清楚。
 
-For a small decision, combine sections while preserving decisive facts or constraints, material challenged assumptions, derivation, exclusions, and validation.
+### 2. 拆开对象
+
+把对象拆成构成或可独立测量的性质。
+
+**假拆检验：** 去掉当前方案的全部模块名、产品名、行业架构词，这个零件是否仍能被命名和评估。不能 = 假拆。做法词和架构图上的接缝默认是假拆。业务词必须改写成**这个对象**上的构成或性质再评估；不能改写 = 假拆。括号例子不是零件分类表：软件对象上常见的是身份、一笔钱、一条记录、一次送达；电池的零件是材料与能量——以对象为准。禁止另造一张零件分类表交差。
+
+再往下拆也不会改你选哪条路，就停。停在与决策无关的底层是拖延。
+
+现有代码和存量是约束（改它的成本），不是零件必须按现有模块存在的理由。
+
+### 3. 独立评估零件
+
+每个零件只问：不靠现成方案，事实允许它是什么、必须是什么。
+
+**假尺检验：** 尺子量的必须是对象的零件的定义量，不是候选方案的 KPI（服务个数、是否符合某架构、拆分数量），也不是近邻代理（打开次数不是「已知」，PV 不是「做成」）。读数是否依赖设计师评价、最佳实践、行业基准、竞品数字、整包报价。是 = 假尺。
+
+独立标尺只包括：能写成可检验命题的物理/逻辑约束、合同义务、可重复测量、零件本身的公开要素价。每一条都要过「没来源则假设」；逻辑约束不豁免。用户确认只对可观察约束/结果有效（预算、时限、合同、看见什么算做成），确认做法不是尺子。整包方案的市价是类比基线，不是尺子。「好架构 / 更清晰 / 可扩展」和比喻式「物理学」不是尺子。标尺必须能读出数或真假。
+
+没有来源的句子不是事实，是假设。没测过的量标未知。未知的零件不算已评估；路径若依赖它，验证第一步必须先测这个未知。假设不当事实。
+
+### 4. 缺口与被迫 / 自由
+
+缺口必须是可核对的差（量、价、约束违反、目标做不到），不是「不够优雅」。基线与评估重合时，写明重合原因，禁止为了有缺口而编差。
+
+然后列选择：哪一步被哪条事实逼出来，哪一步事实沉默（自由）。被迫必须指向第 3 步里有来源或已测的读数；指向假设的只能标「依赖未测」。能少一块、目标还成立，那一块就不该在。
+
+### 5. 再组装
+
+从事实、可假的目标、约束重组路径。同一组事实若推出多条，都写；若只推出一条，写明哪条事实封死了其余。只改了自由选择的变体，不算第二条路径。
+
+行业解可以保留，但每一步的理由必须能指回事实，不能是「大家都这样」。
+
+**真门禁：** 没有任何一步的唯一理由是类比。
+
+### 6. 输出（四项是工作产物，不是章节。空节填满不算）
+
+1. 对象（通过对象检验）；类比基线（或无）以及它靠的未验证假设
+2. 零件、独立标尺与读数、真实缺口
+3. 被迫 vs 自由；新路径及成立前提
+4. 验证第一步
+
+**假验证检验：** 第一步必须打在缺口声称的那个差上。写清测什么量、落在哪一边提案死。差是成本则测成本；差是物理/逻辑不可行则测该约束。打下游观感、满意度、转化率，而差不在那些量上 = 假验证。必须可能失败。
+
+### 发生了还是假装
+
+同时成立才算发生：对象检验通过；假拆检验通过；假尺检验通过；有真实缺口或写明重合原因；没有一步只靠类比；会改答案的事实有来源否则标未知；能指出新路径少哪一块目标会坏；假验证检验通过。
+
+下列一律算没发生：四类清单交差；编稻草人类比扔掉；按模块缝假拆；把候选方案当对象；用类比当尺子；把用户确认的做法当事实；验证不打缺口；把未知写成事实或当成已评估。
+
+交得再完整也是假装。把假装当成完成，违反本条。
+
+推完不是验证完。没跑验证第一步之前只能叫提案，不准叫已经成立。本文件也适用：没看见执行器因此停手假拆/假尺/假验证之前，不准声称「用了本 skill 就发生了第一性原理」。
+
+## 插座 [DEFAULT]
+
+独特触发：当前选项集像是被类比塌缩。假设一变答案就变、或用户明确要，也用。仅难回头、仅「重大」不够——那只说明该想清楚，不说明该用本引擎。未命中触发而套用本格式 = 假装。
+
+还在想要什么 → `pm`。坏了、根因未定 → `systematic-debugging`。已经决定了、只是写代码 → `senior-engineer`。事故复盘 → `5w-ledger-v1-3`。带着复盘进来时，猜想和未证实的环节先当假设，不当事实。
+
+没有用户授权，不准实现。对人说人话，不要把本文件的标题词念给领导听。

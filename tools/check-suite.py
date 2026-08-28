@@ -201,11 +201,16 @@ def check_constitution():
         for s in SKILLS:
             if s not in t:
                 err("boot.md 未点名 skill: " + s)
+        if "看起来做完了" not in t:
+            err("boot.md 未写定律")
     readme_p = os.path.join(ROOT, "README.md")
+    readme = ""
     if os.path.exists(readme_p):
         readme = open(readme_p, encoding="utf-8").read()
         if "contracts/suite-v1.yaml" not in readme:
             err("README 未指向 contracts/suite-v1.yaml 为路由权威")
+        if "看起来做完了" not in readme:
+            err("README 未写定律")
     suite_p = os.path.join(ROOT, "contracts", "suite-v1.yaml")
     if not os.path.exists(suite_p):
         err("缺 contracts/suite-v1.yaml")
@@ -217,6 +222,19 @@ def check_constitution():
             err("suite skills 缺: " + s)
     if "path: contracts/boot.md" not in suite.replace("\\", "/"):
         err("suite 未登记 boot.md")
+    if "\nlaw:" not in suite and not suite.lstrip().startswith("law:"):
+        err("suite 未登记 law")
+    if "看起来做完了" not in suite:
+        err("suite law 未写定律原文")
+    if "list_death" not in suite:
+        err("suite 未写闭清单死因")
+    for s in SKILLS:
+        p = os.path.join(ROOT, s, "SKILL.md")
+        if not os.path.exists(p):
+            continue
+        body = open(p, encoding="utf-8").read()
+        if "套件定律" not in body and "suite law" not in body:
+            err("SKILL.md 未声明套件定律推论: " + s)
 
 
 def main():

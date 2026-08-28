@@ -1,6 +1,20 @@
 schema: 1
 suite: myskills
 
+law:
+  text: "不可信执行器会把「看起来做完了」当目标。只许闭清单认形（不准估）、格子能核对、留下去的先问人、做成看现实。自评、散文充证据、没同意就写、没看见就声称完成——都算没做。"
+  note: "六个插件都是这条定律的推论。开机卡把定律放进窗口；本文件是权威文本。"
+  corollaries:
+    - "六个插件，同一时刻一个主驱动；可搭配，不强制传棒、不强制信封。"
+    - "认形只对闭清单。吃不准当更重的那档。"
+    - "硬门槛格子只要命令+命中/未命中；散文无效。表外叙述不要求命令。"
+    - "装、改配置、播种、删数据：先问。"
+    - "完成看观察面，不看文档写完、测试变绿、格子填满。"
+    - "认错不确定就换插件。信封可选。"
+    - "闭清单会被事故推翻；加例外不准靠感觉，要改清单，用户拍板。"
+    - "存储不是经验；不进窗口等于没有。"
+  list_death: "直通四条、大改八条、命中三步是合同不是物理。真实事故证明按清单会判错 → 改清单；不准写「这次特殊」。agent 只能提出，用户拍板。"
+
 # 规则四级：绝对化词语只允许出现在 [INV] 章节内
 rules:
   tiers: [INV, DEFAULT, HEURISTIC, EXAMPLE]
@@ -32,7 +46,7 @@ skills:
   first-principle-v2:
     path: first-principle-v2/
     driver: primary
-    invokes_when: [重大决策, 难逆决策, 假设未决]
+    invokes_when: [选项集被类比塌缩, 假设一变答案就变, 用户明确要第一性原理]
 
 boot:
   path: contracts/boot.md
@@ -43,7 +57,7 @@ routing:
   note: "六个都是独立插件，可单用可搭配。同一时刻一个主插件即可，不要六个一起当主驱动把窗口塞满。只读经验检索（background-readonly）不算主驱动。搭配不必走固定流水线，也不强制传棒。"
   lanes:
     - name: 需求不清
-      flow: [pm, "first-principle-v2（重大决策时交接）", senior-engineer]
+      flow: [pm, "first-principle-v2（选项集被类比塌缩时交接）", senior-engineer]
     - name: 技术故障
       flow: [systematic-debugging, senior-engineer]
     - name: 严重事故

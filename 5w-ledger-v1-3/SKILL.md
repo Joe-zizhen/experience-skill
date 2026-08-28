@@ -5,6 +5,8 @@ description: "Evidence-based Five Whys root cause analysis with an observable ev
 
 # 5W Ledger Root Cause Analysis
 
+This plugin is a corollary of the suite law: multi-cause audit. A full-looking ledger is not completion. `confirmed` still requires evidence that can hang on the mechanism (see confidence discipline).
+
 Use Five Whys as an evidence-based reverse diagnosis method. Reduce an observed failure to a causal problem statement that can be handed to solution design.
 
 Rule tiers: **[INV]** invariant (violation is a defect), **[DEFAULT]** standard policy (facts or the user may override), **[HEURISTIC]** review signal, **[EXAMPLE]** illustration.
