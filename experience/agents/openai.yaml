@@ -1,7 +1,7 @@
 interface:
   display_name: "Experience"
   short_description: "Cross-session memory: pitfalls, entries, decisions — record once, retrieve at decision points"
-  default_prompt: "Use $experience only to write an entry, maintain/clean, explicit search, or seed/setup. Daily retrieval is the project short contract (and hook if installed), not this skill body. Do not load this skill as a per-task startup ritual."
+  default_prompt: "Use $experience only to write an entry, maintain/clean, explicit search, or seed/setup. Daily retrieval is the project short contract (and hook if installed), not this skill body. INDEX.md is a ledger of index lines, not a rules copy — seed it with the ledger template; put retrieval rules only in the short contract (schema 3). Instant 自清洁 belongs in the short contract so the daily path can run it; periodic 自清洁 is 维护 and must call this skill — do not copy the clean procedure into the short contract. Do not load this skill as a per-task startup ritual. allow_implicit_invocation is false; do not auto-inject this body. Hook injects ledger lines only, not INDEX process headers. Do not rewrite an existing fat INDEX unless the user agrees while upgrading schema."
 
 policy:
-  allow_implicit_invocation: true
+  allow_implicit_invocation: false
