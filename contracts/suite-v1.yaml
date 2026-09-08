@@ -30,7 +30,7 @@ skills:
   pm:
     path: pm/
     driver: primary
-    invokes_when: [新需求, 新功能, 产品想法, PRD, 任务书]
+    invokes_when: [新需求, 新功能, 产品想法, PRD, 需求规格]
   senior-engineer:
     path: senior-engineer/
     driver: primary
