@@ -3,7 +3,7 @@
 
 用法（仓库根目录外也可跑）：
   python tools/install.py --source <仓库目录> --host-dir <宿主 skills 目录>
-      [--skills pm senior-engineer ...]   # 默认全部六个
+      [--skills pm senior-engineer ...]   # 默认装齐 ALL_SKILLS
       [--state-dir <状态目录>]            # 默认 <host-dir>/.install-state
       [--verify-only]                     # 只读回校验，不安装
       [--dry-run]
@@ -21,7 +21,7 @@ import tempfile
 import time
 
 ALL_SKILLS = ["experience", "senior-engineer", "systematic-debugging",
-              "5w-ledger-v1-3", "first-principle-v2", "pm"]
+              "5w-ledger-v1-3", "first-principle-v2", "pm", "architect"]
 SKIP_NAMES = {".git", "__pycache__", ".DS_Store"}
 BOOT_START = "<!-- myskills-boot:start -->"
 BOOT_END = "<!-- myskills-boot:end -->"

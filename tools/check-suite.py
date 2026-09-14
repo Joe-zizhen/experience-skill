@@ -14,7 +14,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKILLS = ["experience", "senior-engineer", "systematic-debugging",
-          "5w-ledger-v1-3", "first-principle-v2", "pm"]
+          "5w-ledger-v1-3", "first-principle-v2", "pm", "architect"]
 TIER_RE = re.compile(r"\*?\*?\[(INV|DEFAULT|HEURISTIC|EXAMPLE)\]\*?\*?")
 TEXT_EXT = (".md", ".py", ".sh", ".yaml", ".yml", ".ts", ".toml", ".json", ".txt")
 errors = []
@@ -237,12 +237,54 @@ def check_constitution():
             err("SKILL.md 未声明套件定律推论: " + s)
 
 
+PORT_HEAD = re.compile(r"^##\s+可选连通")
+H2 = re.compile(r"^##\s+")
+
+
+def check_skill_ports():
+    """点名其他插件的 `name` 只许出现在「可选连通」节（代码块除外）。"""
+    for s in SKILLS:
+        p = os.path.join(ROOT, s, "SKILL.md")
+        if not os.path.exists(p):
+            continue
+        others = [n for n in SKILLS if n != s]
+        in_code = False
+        in_fm = False
+        in_ports = False
+        for i, line in enumerate(open(p, encoding="utf-8"), 1):
+            if i == 1 and line.strip() == "---":
+                in_fm = True
+                continue
+            if in_fm:
+                if line.strip() == "---":
+                    in_fm = False
+                continue
+            if line.lstrip().startswith("```"):
+                in_code = not in_code
+                continue
+            if in_code:
+                continue
+            stripped = line.strip()
+            if PORT_HEAD.match(stripped):
+                in_ports = True
+                continue
+            if in_ports and H2.match(stripped) and not PORT_HEAD.match(stripped):
+                in_ports = False
+            if in_ports:
+                continue
+            for n in others:
+                if "`%s`" % n in line:
+                    err("可选连通外点名其他插件 `%s`: %s:%d: %s"
+                        % (n, rel(p), i, stripped[:60]))
+
+
 def main():
     words = load_abs_words()
     check_encoding()
     check_frontmatter()
     if words:
         check_tiers(words)
+    check_skill_ports()
     check_latest()
     check_links()
     check_license_and_scripts()

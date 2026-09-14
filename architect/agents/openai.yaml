@@ -1,0 +1,7 @@
+interface:
+  display_name: "Architect"
+  short_description: "Place this change on the project's architecture map: ownership, this-slice class diagram, sequence, map patch."
+  default_prompt: "Use $architect. Deliver structure, not implementation. Do not change business code without authorization. The map at docs/architect/ records as-built ownership only — never future intent. INDEX line cap 40; seed by domain, max 15 lines per confirmation, each line a grepable symbol. This-slice class diagram and sequence need command+hit or 新造（已搜未命中） before asking the user to nod. Intent stays on this-change drawings until code lands, then patch the map. Coding tasks stay on the coding plugin; the map enters via the project short contract. If no short contract, say the map will not be auto-read. Code wins on conflict; mark the map suspect and ask — never silently edit INDEX. Periodic self-clean is default policy (first git pull of the day) not an invariant; skip if it cannot run and say so. Optional ports: a requirements spec as input if present; first-principle-v2 method if structural options look analogy-collapsed; output may constrain coding."
+
+policy:
+  allow_implicit_invocation: true

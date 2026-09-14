@@ -3,9 +3,9 @@ suite: myskills
 
 law:
   text: "不可信执行器会把「看起来做完了」当目标。只许闭清单认形（不准估）、格子能核对、留下去的先问人、做成看现实。自评、散文充证据、没同意就写、没看见就声称完成——都算没做。"
-  note: "六个插件都是这条定律的推论。开机卡把定律放进窗口；本文件是权威文本。"
+  note: "已登记的插件都是这条定律的推论。开机卡把定律放进窗口；本文件是权威文本。"
   corollaries:
-    - "六个插件，同一时刻一个主驱动；可搭配，不强制传棒、不强制信封。"
+    - "已登记的插件同一时刻一个主驱动；可搭配，不强制传棒、不强制信封。"
     - "认形只对闭清单。吃不准当更重的那档。"
     - "硬门槛格子只要命令+命中/未命中；散文无效。表外叙述不要求命令。"
     - "装、改配置、播种、删数据：先问。"
@@ -20,6 +20,9 @@ rules:
   tiers: [INV, DEFAULT, HEURISTIC, EXAMPLE]
   absolute_words: [必须, 禁止, 无豁免, ALWAYS, NEVER, MUST, 不许]
   absolute_words_note: "章节档看标题上的 INV/DEFAULT/HEURISTIC；EXAMPLE 只管本行、不改后面整节。行内代码不算。多标签并列的图例/目录行豁免。"
+  skill_body:
+    other_skills: optional_ports_only
+    note: "skill 正文只写自己交付什么。点名别的插件只许出现在「可选连通」。禁止互斥句（这不是某某、某某归某某管）。路由认人只活在开机卡与本文件。"
 
 skills:
   experience:
@@ -30,7 +33,7 @@ skills:
   pm:
     path: pm/
     driver: primary
-    invokes_when: [新需求, 新功能, 产品想法, PRD, 需求规格]
+    invokes_when: [新需求, 新功能, 产品想法, PRD, 任务书]
   senior-engineer:
     path: senior-engineer/
     driver: primary
@@ -47,17 +50,21 @@ skills:
     path: first-principle-v2/
     driver: primary
     invokes_when: [选项集被类比塌缩, 假设一变答案就变, 用户明确要第一性原理]
+  architect:
+    path: architect/
+    driver: primary
+    invokes_when: [找落点, 类图, 时序, 动模块归属]
 
 boot:
   path: contracts/boot.md
-  note: "安装器写入宿主入口的认人条，不是第七个 skill。六个都是可单用可搭配的插件；开机卡不强制流水线、不强制传棒。"
+  note: "安装器写入宿主入口的认人条，不是一个 skill。已登记的插件可单用可搭配；开机卡不强制流水线、不强制传棒。"
 
 routing:
   single_primary_driver: true
-  note: "六个都是独立插件，可单用可搭配。同一时刻一个主插件即可，不要六个一起当主驱动把窗口塞满。只读经验检索（background-readonly）不算主驱动。搭配不必走固定流水线，也不强制传棒。"
+  note: "已登记的插件可单用可搭配。同一时刻一个主插件即可，不要一起当主驱动把窗口塞满。只读经验检索与已挂短契约的架构总账是背景层，不算主驱动。编码任务以 senior-engineer 为主驱动，底图靠短契约进窗口。搭配不必走固定流水线，也不强制传棒。"
   lanes:
     - name: 需求不清
-      flow: [pm, "first-principle-v2（选项集被类比塌缩时交接）", senior-engineer]
+      flow: [pm, "architect（要落点/类图/时序时）", "first-principle-v2（选项集被类比塌缩时交接）", senior-engineer]
     - name: 技术故障
       flow: [systematic-debugging, senior-engineer]
     - name: 严重事故
@@ -81,7 +88,7 @@ permissions:
   requires_explicit_setup:
     - 安装工具或装配 MCP（含 Context7）
     - 修改宿主配置（含 hook 注入）
-    - 播种项目治理文件（经验库、路由指针、能力目录）
+    - 播种项目治理文件（经验库、架构底图、路由指针、能力目录）
     - 外部写操作
   setup_rules: [显式同意, 先备份, 只追加带标记, 验证语法与探针]
   remote_execution: "禁止 @latest；远程执行依赖必须固定版本"

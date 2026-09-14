@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: "Use when any technical issue — errors, crashes, failing tests or builds, regressions, wrong output, performance failures, integration failures, or other unexpected behavior — needs systematic root-cause diagnosis before any fix. Not for multi-cause or incident-grade analysis (→ 5w-ledger-v1-3); not for building features (→ senior-engineer)."
+description: "Use when any technical issue — errors, crashes, failing tests or builds, regressions, wrong output, performance failures, integration failures, or other unexpected behavior — needs systematic root-cause diagnosis before any fix."
 ---
 
 # Systematic Debugging
@@ -11,7 +11,7 @@ Random fixes waste time and create new bugs. Quick patches mask underlying issue
 
 **Core principle:** the goal of diagnosis is the *minimal sufficient causal explanation* — enough understanding of the mechanism to choose the correct fix boundary. Do not chase an unattainable ultimate root cause. When the true origin is outside your control (upstream service, platform, vendor), fixing at the earliest boundary you *do* control is legitimate, as long as the boundary is named explicitly.
 
-This plugin is a corollary of the suite law: undiagnosed faults. A green test is not completion. Wrong uncertainty type → switch plugin.
+This plugin is a corollary of the suite law: undiagnosed faults. A green test is not completion. Deliverable is a causal explanation of a technical fault.
 
 Symptom patches without a causal explanation are failure. Rules in this skill are tiered: **[INV]** invariants (violations are defects), **[DEFAULT]** standard policy (project facts or the user may override), **[HEURISTIC]** review signals (trigger a check, never a verdict by themselves), **[EXAMPLE]** illustrations (no normative force).
 
@@ -265,7 +265,12 @@ If systematic investigation shows the issue is truly environmental, timing-depen
 
 **But:** treat "no root cause" as a claim that needs evidence — most cases are incomplete investigation.
 
-**Reclassification:** if the investigation shows the problem is not a technical fault at all (requirement error, design constraint, expectation mismatch), stop — declare the evidence and switch to the matching plugin (`pm` / `first-principle-v2`). Envelope optional. Do not force a technical fix to fit a wrong problem model.
+**Reclassification:** if the investigation shows the problem is not a technical fault at all (requirement error, design constraint, expectation mismatch), stop and declare the evidence. This plugin's deliverable ends there. Envelope optional if handing off. Do not force a technical fix to fit a wrong problem model.
+
+## 可选连通 [DEFAULT]
+
+- **输入：** 已有失败日志、复现步骤或测试输出，就当成本单要查的对象。
+- **下游：** 够选修复边界的因果说明可以被编码当约束。不是技术故障时，交付到此为止。
 
 **Completion is a reality property:** a fix is complete when the failure disappears in the real environment and does not return during the observation window — not when the test turns green or the writeup is finished.
 

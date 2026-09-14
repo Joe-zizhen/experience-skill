@@ -1,6 +1,6 @@
 ---
 name: 5w-ledger-v1-3
-description: "Evidence-based Five Whys root cause analysis with an observable evidence ledger. Use only for high-severity incidents, failures spanning a time window or multiple interacting causes — including 'which change introduced it' questions — audit/postmortem reviews, and handoffs. Not for routine localized bug fixes."
+description: "Evidence-based Five Whys root cause analysis with an observable evidence ledger. Use for high-severity incidents, failures spanning a time window or multiple interacting causes — including 'which change introduced it' questions — audit/postmortem reviews, and handoffs."
 ---
 
 # 5W Ledger Root Cause Analysis
@@ -33,7 +33,7 @@ When a repository or live system is accessible, gather evidence in this order an
 
 Record what you inspected (paths, commands, log excerpts, timestamps) so each ledger row can cite it **and name its source type**: 用户陈述 (user statement) / 闭合叙事 (closed narrative) / 代码 (code) / 日志 (logs) / 复现 (reproduction) / 外部文档 (external doc). With a supplied closed narrative instead, quote the case text as the supporting fact and apply the closed-evidence rules in Workflow step 2 and the precedence gate in step 6.
 
-Evidence comes in two generations. **Existing evidence** is what you collect without executing the system under investigation: logs, code reading, configs, git history, deployment records, user statements, external docs — no matter how many read-only commands you run, it remains existing evidence. **Generated evidence** exists only because the system was executed under your control: a reproduction with its observed output, an instrumented run (debugger, trace, or temporary logging), a single-variable experiment, or a counterfactual/comparison run (method: follow systematic-debugging Phase 1/3 — referenced here, not copied). Record generated evidence under source type 复现, citing the executed command and its observed result.
+Evidence comes in two generations. **Existing evidence** is what you collect without executing the system under investigation: logs, code reading, configs, git history, deployment records, user statements, external docs — no matter how many read-only commands you run, it remains existing evidence. **Generated evidence** exists only because the system was executed under your control: a reproduction with its observed output, an instrumented run (debugger, trace, or temporary logging), a single-variable experiment, or a counterfactual/comparison run (reproduce, instrument, single-variable). Record generated evidence under source type 复现, citing the executed command and its observed result.
 
 ## Workflow **[DEFAULT]**
 
@@ -68,7 +68,7 @@ Evidence comes in two generations. **Existing evidence** is what you collect wit
     - **Structural absence**: the mechanism operates through a missing contract, abstraction, invariant enforcement, or ownership boundary.
     - **Boundary condition**: an external or accreted constraint the system was expected to tolerate but could not.
     When evidence is insufficient to distinguish between shapes, state UNRESOLVED with the discriminating evidence needed. State the rationale for each identified shape in one sentence. Do not evaluate fix invasiveness, cost, priority, or implementation approach here.
-12. Provide a handoff for first-principle solution design only when the user requests solution design, remediation, or a combined 5W-to-first-principle workflow. Otherwise stop after the RCA and verification needs. When requested, include the desired invariant, observed failure, Why chain or causal tree, root cause or causes, problem structure characterization, relevant control or detection gaps, evidence and confidence, competing hypotheses, unknowns, the falsifier for each material conclusion (what evidence would overturn it), the decision owner, and the minimal reversible next action. Do not embed a preferred solution.
+12. Provide a handoff for solution design only when the user requests solution design or remediation. Otherwise stop after the RCA and verification needs. When requested, include the desired invariant, observed failure, Why chain or causal tree, root cause or causes, problem structure characterization, relevant control or detection gaps, evidence and confidence, competing hypotheses, unknowns, the falsifier for each material conclusion (what evidence would overturn it), the decision owner, and the minimal reversible next action. Do not embed a preferred solution.
 
 ## Guardrails **[DEFAULT]**
 
@@ -100,7 +100,7 @@ Provide:
 - Actual problem statement
 - Confidence, unknowns, and verification needed — each verification need written as an executable step (specific command or experiment plus expected discriminating outcome), per Workflow step 3
 - **Problem structure characterization** (single-point defect / structural absence / boundary condition) with one-sentence rationale
-- Handoff to first-principle input, only when requested — then emit the shared envelope (write `无` if a field does not apply): 看见了什么 / 本该怎样 / 怎么复现 / 证据 / 机制或猜想 / 把握 / 范围 / 没查清的 / 红线 / 怎样能推翻 / 谁拍板 / 最小可退的下一步. Standalone RCA does not need an envelope.
+- Handoff for solution design, only when requested — then emit the shared envelope (write `无` if a field does not apply): 看见了什么 / 本该怎样 / 怎么复现 / 证据 / 机制或猜想 / 把握 / 范围 / 没查清的 / 红线 / 怎样能推翻 / 谁拍板 / 最小可退的下一步. Standalone RCA does not need an envelope.
 
 **Compressed form** — for a localized, well-evidenced failure: merge the headings into one short narrative and keep the ledger to the 3–6 material claims, but never omit the causal chain, the root problem, confidence, or the decisive verification, and always keep the two-section output contract. **Full form** — for a high-impact or multi-causal incident: include every heading above.
 
@@ -153,3 +153,8 @@ explicitly open UNRESOLVED boundaries.
 The `<final>` section is the deliverable. Make it self-contained: cite evidence and confidence inline, and do not reference the ledger, admission mechanics, or these instructions. A reader who skips `<ledger>` must still get the complete RCA.
 
 Default length: at most ~1,500 words (ledger included) for the full form, ~600 for the compressed form, unless the user sets a different budget. Spend the budget on causal links and evidence, not on restating the symptom.
+
+## 可选连通 [DEFAULT]
+
+- **输入：** 已有故障现象、时间窗、日志或复现步骤，就当成本单要拆的对象。
+- **下游：** 点头的因果说明可以被结构落点或编码当约束。用户要解决方案设计时，可把信封交给 `first-principle-v2`。不是每次都要。单独做 RCA，交付在因果说明处结束。
