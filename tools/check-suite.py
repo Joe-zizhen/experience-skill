@@ -14,7 +14,8 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKILLS = ["experience", "senior-engineer", "systematic-debugging",
-          "5w-ledger-v1-3", "first-principle-v2", "pm", "architect"]
+          "5w-ledger-v1-3", "first-principle-v2", "pm", "architect",
+          "excellence"]
 TIER_RE = re.compile(r"\*?\*?\[(INV|DEFAULT|HEURISTIC|EXAMPLE)\]\*?\*?")
 TEXT_EXT = (".md", ".py", ".sh", ".yaml", ".yml", ".ts", ".toml", ".json", ".txt")
 errors = []

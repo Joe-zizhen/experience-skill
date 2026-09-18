@@ -54,6 +54,10 @@ skills:
     path: architect/
     driver: primary
     invokes_when: [找落点, 类图, 时序, 动模块归属]
+  excellence:
+    path: excellence/
+    driver: primary
+    invokes_when: [开放性任务, 方案设计, 架构权衡, 文案, 观点, 规划, 手动点名要优秀]
 
 boot:
   path: contracts/boot.md

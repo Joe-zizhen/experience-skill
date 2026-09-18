@@ -1,6 +1,6 @@
 # Myskills — 个人 AI agent skill 套件
 
-七个独立插件，给会把「看起来做完了」当目标的执行器（Claude Code、Codex 等）用。可只用一个，可搭配。**没有必须走完的流水线，也没有开机 skill。**
+八个独立插件，给会把「看起来做完了」当目标的执行器（Claude Code、Codex 等）用。可只用一个，可搭配。**没有必须走完的流水线，也没有开机 skill。**
 
 谁在什么场合用、定律原文、闭清单死因，以 [`contracts/suite-v1.yaml`](contracts/suite-v1.yaml) 为权威。本 README 是给人看的说明书，不是第二份规则。
 
@@ -19,6 +19,7 @@
 | 事故要复盘 | `5w-ledger-v1-3` |
 | 选项被类比塌缩 | `first-principle-v2` |
 | 付过的代价下次还要付 | `experience`（后台检索，不当主驱动） |
+| 输出停在不会错的中间值 | `excellence`（手动点名） |
 
 **不是：** 一条「需求 → 架构 → 编码 → 复盘」流水线；也不是第七个开机 skill。安装器写入宿主入口的是 [`contracts/boot.md`](contracts/boot.md)，只是认人条。
 
@@ -51,12 +52,13 @@ skill 正文只写自己交付什么。点名别的插件只许出现在「可�
 | 事故、多因、要复盘或交接 | `5w-ledger-v1-3` |
 | 选项集像是被类比塌缩、或明确要第一性原理 | `first-principle-v2` |
 | 项目入口已挂短契约 | `experience` 后台只读；不要当开工仪式 |
+| 开放题（方案/文案/观点/架构权衡）要优秀不要及格 | `excellence`（手动点名才启动） |
 
 仅「难回头 / 重大」不够当第一性原理。同一时刻一个主插件即可。只读经验检索和已挂短契约的架构总账是背景层，不算主驱动。编码任务以 `senior-engineer` 为主驱动，底图靠短契约进窗口。
 
 ---
 
-## 4. 七个插件（各管什么）
+## 4. 八个插件（各管什么）
 
 ### `pm`
 
@@ -92,6 +94,10 @@ skill 正文只写自己交付什么。点名别的插件只许出现在「可�
 
 跨会话例外清单。项目入口短契约每任务读 INDEX；本体只在写入、维护、显式检索、播种时调用。入库四问：会重现、重导有代价、改变行动、写得出失效条件。人工闸门。代码赢。
 
+### `excellence`
+
+开放性任务的卓越输出工作流，手动点名才启动。定标 → 排平庸 → 发散 → 收敛 → 批评，成品置顶、过程为附录。事实问答、修 bug、明确指令的执行类任务不启动。效果与实测证据见 [`excellence/README.md`](excellence/README.md)。
+
 ---
 
 ## 5. 仓库结构
@@ -109,6 +115,7 @@ experience-skill/
 ├── 5w-ledger-v1-3/
 ├── first-principle-v2/
 ├── experience/
+├── excellence/
 ├── tools/
 │   ├── install.py
 │   ├── check-suite.py
@@ -117,7 +124,7 @@ experience-skill/
 └── README.md
 ```
 
-每个插件至少有 `SKILL.md` 和 `agents/openai.yaml`。不要把整仓拷进宿主 skills 目录——走安装器，只装这七个目录 + 开机卡。
+每个插件至少有 `SKILL.md` 和 `agents/openai.yaml`。不要把整仓拷进宿主 skills 目录——走安装器，只装这八个目录 + 开机卡。
 
 项目里的 `docs/experience/`、`docs/architect/` 不进本仓。
 
@@ -170,7 +177,7 @@ git add -A && git commit && git push
 
 | 误用 | 该怎样 |
 | --- | --- |
-| 七个插件当流水线每单走一遍 | 对得上谁用谁 |
+| 八个插件当流水线每单走一遍 | 对得上谁用谁 |
 | `experience` 当开工仪式 | 短契约后台检索 |
 | 仅因为难回头就套第一性原理 | 看选项是不是被类比塌缩 |
 | 改按钮文案却画全仓类图 | 读底图总账即可，不改底图 |

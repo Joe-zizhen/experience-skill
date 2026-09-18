@@ -21,7 +21,8 @@ import tempfile
 import time
 
 ALL_SKILLS = ["experience", "senior-engineer", "systematic-debugging",
-              "5w-ledger-v1-3", "first-principle-v2", "pm", "architect"]
+              "5w-ledger-v1-3", "first-principle-v2", "pm", "architect",
+              "excellence"]
 SKIP_NAMES = {".git", "__pycache__", ".DS_Store"}
 BOOT_START = "<!-- myskills-boot:start -->"
 BOOT_END = "<!-- myskills-boot:end -->"
