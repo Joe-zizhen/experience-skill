@@ -2,13 +2,13 @@
 
 **定律：** 不可信执行器会把「看起来做完了」当目标。只许闭清单认形（不准估）、格子能核对、留下去的先问人、做成看现实。自评、散文充证据、没同意就写、没看见就声称完成——都算没做。
 
-已登记的都是插件：`pm`、`architect`、`senior-engineer`、`systematic-debugging`、`5w-ledger-v1-3`、`first-principle-v2`、`experience`、`excellence`。可只用一个，可搭配。没有「开机 skill」，也没有必须走完的流水线，也不必为了换插件而传棒。
+已登记的都是插件：`pm`、`architect`、`lean-engineer`、`systematic-debugging`、`5w-ledger-v1-3`、`first-principle-v2`、`experience`、`excellence`。可只用一个，可搭配。没有「开机 skill」，也没有必须走完的流水线，也不必为了换插件而传棒。
 
 这一单对得上谁，就用谁（不准用感觉硬套）：
 
 - 还在想要什么、要写需求或任务书 → `pm`
 - 这次改动要找落点、要类图/时序、要动模块归属 → `architect`
-- 已经在写、改、审代码 → `senior-engineer`
+- 已经在写、改、审代码 → `lean-engineer`
 - 坏了、测不过、行为不对，根因还没定 → `systematic-debugging`
 - 事故、多因、要复盘或交接 → `5w-ledger-v1-3`
 - 选项集像是被类比塌缩、假设会改答案、或明确要第一性原理 → `first-principle-v2`

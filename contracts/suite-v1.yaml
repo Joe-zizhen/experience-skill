@@ -34,8 +34,8 @@ skills:
     path: pm/
     driver: primary
     invokes_when: [新需求, 新功能, 产品想法, PRD, 任务书]
-  senior-engineer:
-    path: senior-engineer/
+  lean-engineer:
+    path: lean-engineer/
     driver: primary
     invokes_when: [编码任务, 审查]
   systematic-debugging:
@@ -65,21 +65,21 @@ boot:
 
 routing:
   single_primary_driver: true
-  note: "已登记的插件可单用可搭配。同一时刻一个主插件即可，不要一起当主驱动把窗口塞满。只读经验检索与已挂短契约的架构总账是背景层，不算主驱动。编码任务以 senior-engineer 为主驱动，底图靠短契约进窗口。搭配不必走固定流水线，也不强制传棒。"
+  note: "已登记的插件可单用可搭配。同一时刻一个主插件即可，不要一起当主驱动把窗口塞满。只读经验检索与已挂短契约的架构总账是背景层，不算主驱动。编码任务以 lean-engineer 为主驱动，底图靠短契约进窗口。搭配不必走固定流水线，也不强制传棒。"
   lanes:
     - name: 需求不清
-      flow: [pm, "architect（要落点/类图/时序时）", "first-principle-v2（选项集被类比塌缩时交接）", senior-engineer]
+      flow: [pm, "architect（要落点/类图/时序时）", "first-principle-v2（选项集被类比塌缩时交接）", lean-engineer]
     - name: 技术故障
-      flow: [systematic-debugging, senior-engineer]
+      flow: [systematic-debugging, lean-engineer]
     - name: 严重事故
-      flow: ["可逆止血（systematic-debugging 铁律例外）", "systematic-debugging 定位 / 5w-ledger-v1-3 审计", first-principle-v2, senior-engineer]
+      flow: ["可逆止血（systematic-debugging 铁律例外）", "systematic-debugging 定位 / 5w-ledger-v1-3 审计", first-principle-v2, lean-engineer]
   after_completion: ["experience 候选条目 → 用户确认后写入"]
   precedence: "同一 skill 多处存在时：项目内嵌（<项目>/skills/）> 用户级（~/.agents/skills 等）——项目内嵌随仓库版本化，是团队事实"
   reclassification: "任何 skill 执行中发现证据表明该换另一个插件（例：调试中发现不是技术故障而是需求定义错误），停下、声明证据、换一个。信封可选，不强制传棒。不带着错误的问题模型硬走完当前方法。"
   back_edges:
     - "systematic-debugging → pm（发现是需求/定义错误而非技术故障）"
     - "first-principle-v2 → systematic-debugging（发现缺运行证据，需先实验取证）"
-    - "senior-engineer → pm（实现中发现约束不成立）"
+    - "lean-engineer → pm（实现中发现约束不成立）"
     - "5w-ledger-v1-3 → systematic-debugging（因果无法确认，回到观测取证）"
     - "experience → 现实（条目与当前证据冲突时代码赢，标疑似失效）"
 

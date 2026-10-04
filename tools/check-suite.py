@@ -13,7 +13,7 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SKILLS = ["experience", "senior-engineer", "systematic-debugging",
+SKILLS = ["experience", "lean-engineer", "systematic-debugging",
           "5w-ledger-v1-3", "first-principle-v2", "pm", "architect",
           "excellence"]
 TIER_RE = re.compile(r"\*?\*?\[(INV|DEFAULT|HEURISTIC|EXAMPLE)\]\*?\*?")
