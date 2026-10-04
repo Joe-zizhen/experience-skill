@@ -92,7 +92,7 @@ permissions:
   requires_explicit_setup:
     - 安装工具或装配 MCP（含 Context7）
     - 修改宿主配置（含 hook 注入）
-    - 播种项目治理文件（经验库、架构底图、路由指针、能力档案 power.md）
+    - 播种项目治理文件（经验库、架构底图、路由指针、能力档案 power.md）——例外：用户调用 experience 即授权其播种 / 补齐
     - 外部写操作
   setup_rules: [显式同意, 先备份, 只追加带标记, 验证语法与探针]
   remote_execution: "禁止 @latest；远程执行依赖必须固定版本"
