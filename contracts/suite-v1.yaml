@@ -27,9 +27,9 @@ rules:
 skills:
   experience:
     path: experience/
-    driver: background-readonly
-    note: "只读经验检索是背景层，不算主驱动"
-    invokes_when: [写入条目, 维护, 显式检索, 播种或setup]
+    driver: manual
+    note: "本体主动点名才启动（写入/维护/显式检索/播种）；已挂短契约的项目里，INDEX 轻量只读仍是背景层"
+    invokes_when: [手动点名, 写入条目, 维护, 显式检索, 播种或setup]
   pm:
     path: pm/
     driver: primary
