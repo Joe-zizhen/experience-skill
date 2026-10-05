@@ -79,6 +79,14 @@
 
 ## 通用收尾（所有栈）
 
-1. 验证命令通过后，把装配事实钉进 `docs/power.md` 顶部 CONFIG 区：stack、code_location、pinned_at、detection_evidence。
+1. 验证命令通过后，把下面 CONFIG 模板原样写进 `docs/power.md` 顶部，字段值按实际填：
+
+```md
+## CONFIG（mymodules 建在哪、为什么——首次装配写一次，之后任务照办，不重新猜）
+- 技术栈 stack: <如 单体前端>
+- 目录路径 code_location: <如 src/mymodules/>
+- 定案日期 pinned_at: <YYYY-MM-DD>
+- 判定依据 detection_evidence: <凭什么这么定，如 根 package.json 含 react>
+```
 2. 在 `docs/power.md` 登记触发装配的真实候选（索引条目含契约要素：是什么 / 解决什么 / 何时用 / 何时别用 / 入口（import 路径）/ 示例 / 依赖）；结束时不得留下空目录或空索引。
 3. 治理挂钩：AGENTS.md 有则续写必读路由、无则新建最小版（只含 mymodules 路由与复用调研约定，不编造其他项目信息；**新建或改写 AGENTS.md 前同样先问用户**，与 power.md 播种同走缺口问询）；项目已有计划模板则加入「复用调研」必填段，无模板则并入 AGENTS.md 一条规则，不单独建文件。
