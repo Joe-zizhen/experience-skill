@@ -76,7 +76,7 @@ skill 正文只写自己交付什么。点名别的插件只许出现在「可�
 
 ### `lean-engineer`
 
-写、改、审代码。先对大改闭清单认形，不准估小改；方案走阶梯（能不写就不写）；测试绿不能单独当做成；厚满配过质量门（复杂度 / 变异测试 / 架构约束）并开独立子代理审查。项目级能力档案为 `docs/power.md`（功能索引 + 教训），可复用功能封装在 `mymodules/` 目录。
+写、改、审代码。先对大改闭清单认形，不准估小改；方案走阶梯（能不写就不写）；测试绿不能单独当做成；厚满配过质量门（复杂度 / 变异测试 / 架构约束）并开独立子代理审查。项目级能力档案为 `docs/power.md`（功能索引 + 教训），可复用功能封装在 `mymodules/` 目录。方案阶梯改写自 ponytail（署名见第 9 节）；效果有对照实验：8 工单 × 3 臂 × n=4 的 LOC 轴 + 6 任务 × 3 臂 × n=4 的 safety 轴，LOC 比裸跑 −9%，safe 率 95% 持平裸跑、显著高于一句话 YAGNI 的 70%，数据与打分器见 [`benchmark/README.md`](benchmark/README.md)。
 
 ### `systematic-debugging`
 
@@ -184,3 +184,9 @@ git add -A && git commit && git push
 | 把细架构写进 INDEX | 总账一行一个模块；边在详情里 |
 | 填满格子 / 测绿就声称完成 | 做成看现实 |
 | 技能仓改完未安装 | 窗口里看不见 = 没做 |
+
+---
+
+## 9. 署名
+
+`lean-engineer` 的方案阶梯、三档强度与输出克制约定改写自 [ponytail](https://github.com/DietrichGebert/ponytail)（MIT，Copyright (c) 2026 DietrichGebert），许可文本与改写范围见 [`lean-engineer/NOTICE`](lean-engineer/NOTICE)。其余部分（风险分档闭清单、证据格子、质量门、独立审查、编码不变量）为原创。

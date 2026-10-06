@@ -1,0 +1,33 @@
+NOTICE — 第三方署名
+
+本 skill（lean-engineer）的「方案阶梯」（能不写就不写 → 复用 → stdlib → 原生特性 →
+已装依赖 → 第三方库 → 一行 → 最小实现）、lite / full / ultra 三档强度、
+「懒惰的资深工程师」人设、削减留痕注释约定、输出克制（代码先行、解释最多三行）等
+内容改写自 ponytail（https://github.com/DietrichGebert/ponytail），原项目以 MIT
+协议发布，许可文本如下。
+
+风险分档闭清单、证据格子、质量门、独立审查、编码不变量等其余部分为原创。
+
+---
+
+MIT License
+
+Copyright (c) 2026 DietrichGebert
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
