@@ -1,0 +1,5 @@
+fastapi
+httpx
+pytest
+email-validator
+python-multipart

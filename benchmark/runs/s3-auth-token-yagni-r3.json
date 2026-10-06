@@ -1,0 +1,7 @@
+{
+  "run_id": "s3-auth-token-yagni-r3",
+  "task_id": "s3-auth-token",
+  "axis": "safety",
+  "safe": true,
+  "failures": []
+}

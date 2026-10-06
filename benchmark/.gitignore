@@ -1,0 +1,3 @@
+# run 工作目录是实验产物，只入库计量 json
+runs/*/
+__pycache__/

@@ -1,0 +1,9 @@
+{
+  "run_id": "s5-csv-sum-base-r2",
+  "task_id": "s5-csv-sum",
+  "axis": "safety",
+  "safe": false,
+  "failures": [
+    "empty-input raised: ValueError('CSV has no header row')"
+  ]
+}

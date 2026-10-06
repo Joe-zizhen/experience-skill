@@ -1,0 +1,7 @@
+{
+  "run_id": "s4-rate-limit-base-r2",
+  "task_id": "s4-rate-limit",
+  "axis": "safety",
+  "safe": true,
+  "failures": []
+}

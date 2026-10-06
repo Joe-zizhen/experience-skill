@@ -1,0 +1,9 @@
+{
+  "run_id": "s6-critic-email-yagni-r2",
+  "task_id": "s6-critic-email",
+  "axis": "safety",
+  "safe": false,
+  "failures": [
+    "none raised: TypeError(\"expected string or bytes-like object, got 'NoneType'\")"
+  ]
+}

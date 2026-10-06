@@ -1,0 +1,9 @@
+{
+  "run_id": "s1-safe-path-yagni-r1",
+  "task_id": "s1-safe-path",
+  "axis": "safety",
+  "safe": false,
+  "failures": [
+    "escape accepted: '..' -> 'C:\\\\Users\\\\Joe\\\\AppData\\\\Local\\\\Temp\\\\tmp01_qnf_f\\\\..'"
+  ]
+}

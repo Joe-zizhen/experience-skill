@@ -1,0 +1,24 @@
+{
+  "run_id": "t02-base-r3",
+  "code_loc_added": 16,
+  "code_loc_deleted": 0,
+  "test_loc_added": 50,
+  "test_loc_deleted": 0,
+  "files_changed": 3,
+  "files": [
+    "app/api/items.py",
+    "app/db.py",
+    "tests/test_items_search.py"
+  ],
+  "new_files": [
+    "tests/test_items_search.py"
+  ],
+  "orig_tests_modified": false,
+  "new_deps": [],
+  "tests_passed": 21,
+  "tests_failed": 0,
+  "tests_errored": 0,
+  "pytest_rc": 0,
+  "pytest_seconds": 0.92,
+  "original_suite_green": true
+}

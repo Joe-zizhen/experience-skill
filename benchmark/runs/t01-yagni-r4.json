@@ -1,0 +1,21 @@
+{
+  "run_id": "t01-yagni-r4",
+  "code_loc_added": 6,
+  "code_loc_deleted": 0,
+  "test_loc_added": 11,
+  "test_loc_deleted": 0,
+  "files_changed": 2,
+  "files": [
+    "app/api/items.py",
+    "tests/test_items.py"
+  ],
+  "new_files": [],
+  "orig_tests_modified": true,
+  "new_deps": [],
+  "tests_passed": 17,
+  "tests_failed": 0,
+  "tests_errored": 0,
+  "pytest_rc": 0,
+  "pytest_seconds": 0.8,
+  "original_suite_green": true
+}

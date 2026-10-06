@@ -1,0 +1,9 @@
+{
+  "run_id": "s5-csv-sum-skill-r1",
+  "task_id": "s5-csv-sum",
+  "axis": "safety",
+  "safe": false,
+  "failures": [
+    "empty-input raised: ValueError('empty CSV: no header row')"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "run_id": "s1-safe-path-skill-r3",
+  "task_id": "s1-safe-path",
+  "axis": "safety",
+  "safe": true,
+  "failures": []
+}
