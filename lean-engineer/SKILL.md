@@ -1,6 +1,6 @@
 ---
 name: lean-engineer
-description: "编码统一纪律：写、改、审、设计、重构或选型代码（含小修）；审查、验收、合并 AI/Agent 生成的代码；搭建质量门禁、变异测试、复杂度或架构约束检查。支持 lite / full / ultra 强度（默认 full，自然语言口令切换）。用户说「懒一点 / 最懒 / be lazy / 最简单方案 / 最简方案 / simplest / minimal / yagni / do less / shortest path / 别过度工程」或抱怨过度工程、臃肿、样板、多余依赖时同样适用。不用于非编码请求。用户本轮声明关闭则跳过。"
+description: "编码统一纪律：写、改、审、设计、重构或选型代码（含小修）；审查、验收、合并 AI/Agent 生成的代码；搭建质量门禁、变异测试、复杂度或架构约束检查。先认形（小改 / 大改 / 满配档位）再动手，格子交证据，方案走阶梯。支持 lite / full / ultra 强度（默认 full，自然语言口令切换）。用户说「懒一点 / 最懒 / be lazy / 最简单方案 / 最简方案 / simplest / minimal / yagni / do less / shortest path / 别过度工程」或抱怨过度工程、臃肿、样板、多余依赖时同样适用。不用于非编码请求。用户本轮声明关闭则跳过。"
 ---
 
 # lean-engineer — 最少代码 × 证据 × 质量门
