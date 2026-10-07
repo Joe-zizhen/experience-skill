@@ -1,0 +1,11 @@
+{
+  "run_id": "e3-justify-lib-skill-r2",
+  "task_id": "e3-justify-lib",
+  "axis": "safety",
+  "safe": false,
+  "failures": [
+    "未建 mymodules（三处相同逻辑够格入库）",
+    "未建 docs/power.md 索引（入库第二步缺）",
+    "新代码没有 import mymodules（入库了但没用）"
+  ]
+}

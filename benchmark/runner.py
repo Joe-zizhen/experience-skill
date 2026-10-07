@@ -75,6 +75,23 @@ def setup_safety(run_id, task_id):
     print(dst)
 
 
+def setup_project(run_id, task_id):
+    sys.path.insert(0, str(BENCH / "safety"))
+    from projects import PROJECT_TASKS, materialize
+    if task_id not in PROJECT_TASKS:
+        sys.exit("未知 project task: " + task_id)
+    dst = RUNS / run_id
+    if dst.exists():
+        shutil.rmtree(dst, onexc=_force_remove)
+    dst.mkdir(parents=True)
+    materialize(FIXTURE, dst, task_id)
+    sh(["git", "init", "-q"], dst)
+    sh(["git", "add", "-A"], dst)
+    sh(["git", "-c", "user.email=bench@local", "-c", "user.name=bench",
+        "commit", "-qm", "baseline"], dst)
+    print(dst)
+
+
 def measure(run_id):
     d = RUNS / run_id
     if not d.exists():
@@ -178,6 +195,8 @@ if __name__ == "__main__":
         setup(sys.argv[2])
     elif cmd == "setup-safety" and len(sys.argv) == 4:
         setup_safety(sys.argv[2], sys.argv[3])
+    elif cmd == "setup-project" and len(sys.argv) == 4:
+        setup_project(sys.argv[2], sys.argv[3])
     elif cmd == "measure" and len(sys.argv) == 3:
         measure(sys.argv[2])
     elif cmd == "summary":

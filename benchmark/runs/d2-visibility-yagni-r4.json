@@ -1,0 +1,7 @@
+{
+  "run_id": "d2-visibility-yagni-r4",
+  "task_id": "d2-visibility",
+  "axis": "safety",
+  "safe": true,
+  "failures": []
+}

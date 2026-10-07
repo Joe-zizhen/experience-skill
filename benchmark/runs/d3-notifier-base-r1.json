@@ -1,0 +1,7 @@
+{
+  "run_id": "d3-notifier-base-r1",
+  "task_id": "d3-notifier",
+  "axis": "safety",
+  "safe": true,
+  "failures": []
+}

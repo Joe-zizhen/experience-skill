@@ -1,0 +1,9 @@
+{
+  "run_id": "f2-mutation-yagni-r4",
+  "task_id": "f2-mutation",
+  "axis": "safety",
+  "safe": false,
+  "failures": [
+    "没有针对 apply_coupon 的测试"
+  ]
+}

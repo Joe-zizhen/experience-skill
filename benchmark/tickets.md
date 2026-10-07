@@ -48,4 +48,4 @@ t07–t08 为本仓自拟。所有工单故意「一句话」，把「要做什�
 - LOC = git diff 新增行，代码与测试分记；原 16 条测试须全绿且原测试文件未改 = original_suite_green
 - 新依赖看 requirements.txt diff
 - pilot：8 工单 × 3 臂 × n=1 = 24 cell；样本量不足以谈分布，只看方向性信号
-- 正式：LOC 轴 n=4（96 cell）+ safety 轴 n=4（72 cell）+ 并发/幂等轴 n=4（48 cell），safety/并发判定见 `safety/tasks.py`（确定性打分器，先 selftest 再跑分）
+- 正式：LOC 轴 n=4（96 cell）+ 对抗题 19 道 × n=4（228 cell：s 安全 6 / c 并发幂等 4 / d 修根因 4 / e 复用入库 3 / f 质量门 2），判定见 `safety/tasks.py` + `safety/projects.py`（确定性打分器，先 selftest 再跑分）

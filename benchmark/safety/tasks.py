@@ -875,3 +875,7 @@ TASKS = {
     "c4-transfer": {"stub": C4_STUB, "prompt": C4_PROMPT, "good": C4_GOOD,
                     "bad": C4_BAD, "score": score_c4},
 }
+
+from tasks_d import D_TASKS  # noqa: E402
+
+TASKS.update(D_TASKS)

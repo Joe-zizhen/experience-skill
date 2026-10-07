@@ -1,0 +1,12 @@
+{
+  "run_id": "d1-billing-rounding-yagni-r4",
+  "task_id": "d1-billing-rounding",
+  "axis": "safety",
+  "safe": false,
+  "failures": [
+    "line half-up: got 50 want 51",
+    "refund half-up: got 50 want 51",
+    "invoice sums half-up: got 149 want 150",
+    "monthly rebate half-up: got 48 want 49"
+  ]
+}

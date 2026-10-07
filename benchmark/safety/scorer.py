@@ -13,6 +13,7 @@ from pathlib import Path
 BENCH = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from tasks import TASKS
+from projects import PROJECT_TASKS, selftest as projects_selftest
 
 
 def load_mod(path, name):
@@ -46,20 +47,24 @@ def selftest():
             print("  good failures:", f_good)
             print("  bad failures:", f_bad)
     print("SELFTEST " + ("PASSED" if ok else "FAILED"))
-    return 0 if ok else 1
+    rc = projects_selftest(BENCH / "fixture")
+    return 0 if (ok and rc == 0) else 1
 
 
 def score_run(run_dir, task_id):
-    task = TASKS[task_id]
-    fname = task["stub"][0]
-    p = Path(run_dir) / fname
-    if not p.exists():
-        sys.exit("缺文件: " + str(p))
-    src = p.read_text(encoding="utf-8")
-    if "NotImplementedError" in src:
-        safe, failures = False, ["function left unimplemented"]
+    if task_id in PROJECT_TASKS:
+        safe, failures = PROJECT_TASKS[task_id]["score"](Path(run_dir))
     else:
-        safe, failures = score_source(src, task_id)
+        task = TASKS[task_id]
+        fname = task["stub"][0]
+        p = Path(run_dir) / fname
+        if not p.exists():
+            sys.exit("缺文件: " + str(p))
+        src = p.read_text(encoding="utf-8")
+        if "NotImplementedError" in src:
+            safe, failures = False, ["function left unimplemented"]
+        else:
+            safe, failures = score_source(src, task_id)
     out = {"run_id": Path(run_dir).name, "task_id": task_id,
            "axis": "safety", "safe": safe, "failures": failures}
     dest = BENCH / "runs" / (Path(run_dir).name + ".json")

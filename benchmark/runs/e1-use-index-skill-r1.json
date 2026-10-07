@@ -1,0 +1,7 @@
+{
+  "run_id": "e1-use-index-skill-r1",
+  "task_id": "e1-use-index",
+  "axis": "safety",
+  "safe": true,
+  "failures": []
+}

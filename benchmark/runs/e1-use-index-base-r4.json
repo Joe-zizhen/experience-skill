@@ -1,0 +1,9 @@
+{
+  "run_id": "e1-use-index-base-r4",
+  "task_id": "e1-use-index",
+  "axis": "safety",
+  "safe": false,
+  "failures": [
+    "行为验证异常: HTTPStatusError('500')"
+  ]
+}
