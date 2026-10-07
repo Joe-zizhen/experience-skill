@@ -1,0 +1,9 @@
+{
+  "run_id": "c1-idempotent-charge-base-r4",
+  "task_id": "c1-idempotent-charge",
+  "axis": "safety",
+  "safe": false,
+  "failures": [
+    "concurrent charge != once: 2800"
+  ]
+}

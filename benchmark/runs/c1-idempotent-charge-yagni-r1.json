@@ -1,0 +1,7 @@
+{
+  "run_id": "c1-idempotent-charge-yagni-r1",
+  "task_id": "c1-idempotent-charge",
+  "axis": "safety",
+  "safe": true,
+  "failures": []
+}

@@ -1,0 +1,15 @@
+{
+  "run_id": "c2-stock-race-yagni-r1",
+  "task_id": "c2-stock-race",
+  "axis": "safety",
+  "safe": false,
+  "failures": [
+    "sequential buy wrong: stock=5",
+    "insufficient case: rejected but stock moved to 5",
+    "round 0 oversell: won=20 final_stock=5",
+    "round 1 oversell: won=20 final_stock=5",
+    "round 2 oversell: won=20 final_stock=5",
+    "round 3 oversell: won=20 final_stock=5",
+    "round 4 oversell: won=20 final_stock=5"
+  ]
+}

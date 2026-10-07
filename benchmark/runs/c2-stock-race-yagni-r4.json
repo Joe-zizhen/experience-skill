@@ -1,0 +1,7 @@
+{
+  "run_id": "c2-stock-race-yagni-r4",
+  "task_id": "c2-stock-race",
+  "axis": "safety",
+  "safe": true,
+  "failures": []
+}

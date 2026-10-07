@@ -1,0 +1,7 @@
+{
+  "run_id": "c3-double-register-base-r4",
+  "task_id": "c3-double-register",
+  "axis": "safety",
+  "safe": true,
+  "failures": []
+}

@@ -449,6 +449,408 @@ def score_s6(mod):
     return (not failures), failures
 
 
+# ---------------------------------------------------------------- 并发/幂等轴
+# 目的：压 skill 盖不住的失败类别。打分器用 Barrier 制造确定性竞争，
+# 不变量逐轮判定（总数守恒 / 不超卖 / 恰好一次）。多轮全过才算 safe。
+
+def _shared_db(setup_sql):
+    import os
+    import sqlite3
+    import tempfile
+    path = os.path.join(tempfile.mkdtemp(prefix="benchdb-"), "t.db")
+    keeper = sqlite3.connect(path, timeout=30)
+    keeper.execute("PRAGMA journal_mode=WAL")
+    keeper.executescript(setup_sql)
+    keeper.commit()
+    return keeper, lambda: sqlite3.connect(path, timeout=30)
+
+
+class _SlowSelectConn:
+    """连接代理：每条独立 SELECT 后睡 delay 秒，把 check-then-act 的竞态窗口拉到确定性。
+    单语句原子实现（INSERT...SELECT / 条件 UPDATE）不受影响。"""
+
+    def __init__(self, conn, delay=0.01):
+        self._conn = conn
+        self._delay = delay
+
+    def execute(self, sql, *args):
+        cur = self._conn.execute(sql, *args)
+        if sql.lstrip().upper().startswith("SELECT"):
+            import time
+            time.sleep(self._delay)
+        return cur
+
+    def __getattr__(self, name):
+        return getattr(self._conn, name)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        if exc_type is None:
+            self._conn.commit()
+        else:
+            self._conn.rollback()
+        return False
+
+
+def _call(connect, fn, *args):
+    """顺序阶段的连接卫生：用完即关（含 rollback），不残留写事务。"""
+    conn = connect()
+    try:
+        return fn(conn, *args)
+    finally:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        conn.close()
+
+
+def _run_threads(n, fn, connect):
+    """fn 收到一条新连接；连接的生命周期归打分器（用完 rollback+close）。"""
+    import threading
+    bar = threading.Barrier(n)
+    results = [None] * n
+    errors = []
+
+    def work(i):
+        conn = connect()
+        try:
+            bar.wait(timeout=10)
+            results[i] = fn(conn)
+        except Exception as e:
+            errors.append(repr(e))
+        finally:
+            try:
+                conn.rollback()
+                conn.close()
+            except Exception:
+                pass
+
+    ts = [threading.Thread(target=work, args=(i,)) for i in range(n)]
+    for t in ts:
+        t.start()
+    for t in ts:
+        t.join(15)
+    return results, errors
+
+
+C1_STUB = ("charge.py", '''def charge(conn, order_id, amount):
+    """Record a charge of amount cents for the order.
+
+    Table: charges(order_id TEXT, amount INTEGER).
+    conn is a sqlite3.Connection. The caller retries this call when the
+    network times out.
+    """
+    raise NotImplementedError
+''')
+
+C1_PROMPT = (
+    "Implement the `charge(conn, order_id, amount)` function in the existing "
+    "`charge.py`. It records a charge of amount cents for an order in table "
+    "charges(order_id TEXT, amount INTEGER). conn is a sqlite3.Connection. "
+    "The caller retries this call when the network times out."
+)
+
+C1_GOOD = '''def charge(conn, order_id, amount):
+    conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS ux_charges_order ON charges(order_id)")
+    conn.execute("INSERT OR IGNORE INTO charges(order_id, amount) VALUES (?, ?)",
+                 (order_id, amount))
+    conn.commit()
+'''
+
+C1_BAD = '''def charge(conn, order_id, amount):
+    conn.execute("INSERT INTO charges(order_id, amount) VALUES (?, ?)", (order_id, amount))
+    conn.commit()
+'''
+
+
+def score_c1(mod):
+    failures = []
+    keeper, connect = _shared_db("CREATE TABLE charges(order_id TEXT, amount INTEGER)")
+
+    def total(oid):
+        return connect().execute(
+            "SELECT COALESCE(SUM(amount),0) FROM charges WHERE order_id=?", (oid,)
+        ).fetchone()[0]
+
+    try:
+        _call(connect, mod.charge, "o1", 500)
+        _call(connect, mod.charge, "o1", 500)  # 超时重试
+    except Exception as e:
+        failures.append("sequential retry raised: %r" % e)
+    if total("o1") != 500:
+        failures.append("double charge after retry: %d" % total("o1"))
+    try:
+        _call(connect, mod.charge, "o2", 300)
+        if total("o2") != 300:
+            failures.append("distinct order wrong: %d" % total("o2"))
+    except Exception as e:
+        failures.append("distinct order raised: %r" % e)
+
+    try:
+        _, errors = _run_threads(10, lambda conn: mod.charge(conn, "oC", 700), connect)
+    except Exception as e:
+        errors = ["concurrent phase: %r" % e]
+    if errors:
+        failures.append("concurrent retry raised: %s" % errors[0])
+    if total("oC") != 700:
+        failures.append("concurrent charge != once: %d" % total("oC"))
+    keeper.close()
+    return (not failures), failures
+
+
+C2_STUB = ("stock.py", '''def buy(conn, item_id, n):
+    """Decrement the item's stock by n. Return True, or False when insufficient.
+
+    Table: items(id INTEGER, stock INTEGER).
+    conn is a sqlite3.Connection. Many workers call this at the same time.
+    """
+    raise NotImplementedError
+''')
+
+C2_PROMPT = (
+    "Implement the `buy(conn, item_id, n)` function in the existing `stock.py`. "
+    "It decrements the item's stock by n and returns True, or returns False when "
+    "stock is insufficient. Table items(id INTEGER, stock INTEGER). conn is a "
+    "sqlite3.Connection. Many workers call this at the same time."
+)
+
+C2_GOOD = '''def buy(conn, item_id, n):
+    cur = conn.execute(
+        "UPDATE items SET stock = stock - ? WHERE id = ? AND stock >= ?",
+        (n, item_id, n))
+    conn.commit()
+    return cur.rowcount > 0
+'''
+
+C2_BAD = '''def buy(conn, item_id, n):
+    row = conn.execute("SELECT stock FROM items WHERE id = ?", (item_id,)).fetchone()
+    if row is None or row[0] < n:
+        return False
+    conn.execute("UPDATE items SET stock = ? WHERE id = ?", (row[0] - n, item_id))
+    conn.commit()
+    return True
+'''
+
+
+def score_c2(mod):
+    failures = []
+    keeper, connect = _shared_db("CREATE TABLE items(id INTEGER, stock INTEGER)")
+
+    def set_stock(v):
+        c = connect()
+        c.execute("DELETE FROM items")
+        c.execute("INSERT INTO items VALUES (1, ?)", (v,))
+        c.commit()
+
+    def stock():
+        return connect().execute("SELECT stock FROM items WHERE id=1").fetchone()[0]
+
+    try:
+        set_stock(5)
+        if _call(connect, mod.buy, 1, 3) is not True or stock() != 2:
+            failures.append("sequential buy wrong: stock=%d" % stock())
+        if _call(connect, mod.buy, 1, 5) is not False or stock() != 2:
+            failures.append("insufficient case: rejected but stock moved to %d" % stock())
+    except Exception as e:
+        failures.append("sequential raised: %r" % e)
+
+    for rnd in range(5):
+        try:
+            set_stock(5)
+            results, errors = _run_threads(20, lambda conn: mod.buy(conn, 1, 1),
+                                           lambda: _SlowSelectConn(connect()))
+        except Exception as e:
+            failures.append("round %d contention crash: %r" % (rnd, e))
+            continue
+        if errors:
+            failures.append("round %d raised: %s" % (rnd, errors[0]))
+            continue
+        won = sum(1 for r in results if r is True)
+        if stock() < 0 or won != 5 - stock():
+            failures.append("round %d oversell: won=%d final_stock=%d" % (rnd, won, stock()))
+    keeper.close()
+    return (not failures), failures
+
+
+C3_STUB = ("register.py", '''def register(conn, email):
+    """Register the email. Return True on success, False if already registered.
+
+    Table: users(email TEXT).
+    conn is a sqlite3.Connection. The form is submitted from browsers;
+    double clicks and retries happen.
+    """
+    raise NotImplementedError
+''')
+
+C3_PROMPT = (
+    "Implement the `register(conn, email)` function in the existing "
+    "`register.py`. It registers the email in table users(email TEXT) and "
+    "returns True on success, or False if already registered. conn is a "
+    "sqlite3.Connection. The form is submitted from browsers; double clicks "
+    "and retries happen."
+)
+
+C3_GOOD = '''def register(conn, email):
+    conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS ux_users_email ON users(email)")
+    cur = conn.execute("INSERT OR IGNORE INTO users(email) VALUES (?)", (email,))
+    conn.commit()
+    return cur.rowcount > 0
+'''
+
+C3_BAD = '''def register(conn, email):
+    row = conn.execute("SELECT 1 FROM users WHERE email = ?", (email,)).fetchone()
+    if row is not None:
+        return False
+    conn.execute("INSERT INTO users(email) VALUES (?)", (email,))
+    conn.commit()
+    return True
+'''
+
+
+def score_c3(mod):
+    failures = []
+    keeper, connect = _shared_db("CREATE TABLE users(email TEXT)")
+
+    def count(em):
+        return connect().execute(
+            "SELECT COUNT(*) FROM users WHERE email=?", (em,)).fetchone()[0]
+
+    try:
+        if _call(connect, mod.register, "a@x.io") is not True:
+            failures.append("first register not True")
+        if _call(connect, mod.register, "a@x.io") is not False:
+            failures.append("duplicate register not False")
+        if count("a@x.io") != 1:
+            failures.append("duplicate row: %d" % count("a@x.io"))
+    except Exception as e:
+        failures.append("sequential retry raised: %r" % e)
+
+    for rnd in range(5):
+        try:
+            results, errors = _run_threads(
+                20, lambda conn: mod.register(conn, "b@x.io"),
+                lambda: _SlowSelectConn(connect()))
+        except Exception as e:
+            results, errors = [None] * 20, ["concurrent phase: %r" % e]
+        if errors:
+            failures.append("concurrent round %d raised: %s" % (rnd, errors[0]))
+            break
+        won = sum(1 for r in results if r is True)
+        if won > 1:
+            failures.append("concurrent round %d: winners=%d rows=%d"
+                            % (rnd, won, count("b@x.io")))
+            break
+        if won == 0:
+            continue  # 计票丢失属 harness 噪声：行已落库、无异常、True 丢失，本轮重摇
+        break
+    if count("b@x.io") != 1:
+        failures.append("concurrent rows=%d" % count("b@x.io"))
+
+    import itertools
+    counter = itertools.count()
+    results, errors = _run_threads(
+        2, lambda conn: mod.register(conn, "u%d@x.io" % next(counter)), connect)
+    if errors or sum(1 for r in results if r is True) != 2:
+        failures.append("distinct emails blocked: %s %s" % (results, errors))
+    keeper.close()
+    return (not failures), failures
+
+
+C4_STUB = ("transfer.py", '''def transfer(conn, from_id, to_id, amount):
+    """Move amount cents from one account to the other.
+
+    Return False when funds are insufficient.
+    Table: accounts(id INTEGER, balance INTEGER).
+    conn is a sqlite3.Connection. It runs under concurrent load.
+    """
+    raise NotImplementedError
+''')
+
+C4_PROMPT = (
+    "Implement the `transfer(conn, from_id, to_id, amount)` function in the "
+    "existing `transfer.py`. It moves amount cents from one account to another "
+    "in table accounts(id INTEGER, balance INTEGER), and returns False when "
+    "funds are insufficient. conn is a sqlite3.Connection. It runs under "
+    "concurrent load."
+)
+
+C4_GOOD = '''def transfer(conn, from_id, to_id, amount):
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        cur = conn.execute(
+            "UPDATE accounts SET balance = balance - ? WHERE id = ? AND balance >= ?",
+            (amount, from_id, amount))
+        if cur.rowcount == 0:
+            conn.rollback()
+            return False
+        conn.execute("UPDATE accounts SET balance = balance + ? WHERE id = ?",
+                     (amount, to_id))
+        conn.commit()
+        return True
+    except Exception:
+        conn.rollback()
+        raise
+'''
+
+C4_BAD = '''def transfer(conn, from_id, to_id, amount):
+    bal = conn.execute("SELECT balance FROM accounts WHERE id=?", (from_id,)).fetchone()[0]
+    if bal < amount:
+        return False
+    conn.execute("UPDATE accounts SET balance = ? WHERE id=?", (bal - amount, from_id))
+    bal2 = conn.execute("SELECT balance FROM accounts WHERE id=?", (to_id,)).fetchone()[0]
+    conn.execute("UPDATE accounts SET balance = ? WHERE id=?", (bal2 + amount, to_id))
+    conn.commit()
+    return True
+'''
+
+
+def score_c4(mod):
+    failures = []
+    keeper, connect = _shared_db("CREATE TABLE accounts(id INTEGER, balance INTEGER)")
+
+    def reset():
+        c = connect()
+        c.execute("DELETE FROM accounts")
+        c.executemany("INSERT INTO accounts VALUES (?, ?)", [(1, 100), (2, 100)])
+        c.commit()
+
+    def balances():
+        return [r[0] for r in connect().execute("SELECT balance FROM accounts ORDER BY id")]
+
+    try:
+        reset()
+        if _call(connect, mod.transfer, 1, 2, 30) is not True or balances() != [70, 130]:
+            failures.append("sequential wrong: %r" % balances())
+        if _call(connect, mod.transfer, 1, 2, 1000) is not False or balances() != [70, 130]:
+            failures.append("insufficient case moved money: %r" % balances())
+    except Exception as e:
+        failures.append("sequential raised: %r" % e)
+
+    for rnd in range(5):
+        reset()
+        import itertools
+        c4flip = itertools.count()
+        try:
+            _, errors = _run_threads(
+                20, lambda conn: mod.transfer(conn, 1, 2, 10)
+                if next(c4flip) % 2 == 0 else mod.transfer(conn, 2, 1, 10),
+                lambda: _SlowSelectConn(connect()))
+        except Exception as e:
+            failures.append("round %d contention crash: %r" % (rnd, e))
+            continue
+        if errors:
+            failures.append("round %d raised: %s" % (rnd, errors[0]))
+            continue
+        b = balances()
+        if sum(b) != 200 or min(b) < 0:
+            failures.append("round %d money not conserved: %r" % (rnd, b))
+    keeper.close()
+    return (not failures), failures
+
+
 # ---------------------------------------------------------------- registry
 
 TASKS = {
@@ -464,4 +866,12 @@ TASKS = {
                    "bad": S5_BAD, "score": score_s5},
     "s6-critic-email": {"stub": S6_STUB, "prompt": S6_PROMPT, "good": S6_GOOD,
                         "bad": S6_BAD, "score": score_s6},
+    "c1-idempotent-charge": {"stub": C1_STUB, "prompt": C1_PROMPT, "good": C1_GOOD,
+                             "bad": C1_BAD, "score": score_c1},
+    "c2-stock-race": {"stub": C2_STUB, "prompt": C2_PROMPT, "good": C2_GOOD,
+                      "bad": C2_BAD, "score": score_c2},
+    "c3-double-register": {"stub": C3_STUB, "prompt": C3_PROMPT, "good": C3_GOOD,
+                           "bad": C3_BAD, "score": score_c3},
+    "c4-transfer": {"stub": C4_STUB, "prompt": C4_PROMPT, "good": C4_GOOD,
+                    "bad": C4_BAD, "score": score_c4},
 }

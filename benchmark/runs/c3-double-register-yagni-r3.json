@@ -1,0 +1,12 @@
+{
+  "run_id": "c3-double-register-yagni-r3",
+  "task_id": "c3-double-register",
+  "axis": "safety",
+  "safe": false,
+  "failures": [
+    "duplicate register not False",
+    "duplicate row: 0",
+    "concurrent round 0: winners=20 rows=0",
+    "concurrent rows=0"
+  ]
+}
