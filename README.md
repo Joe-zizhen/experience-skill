@@ -76,7 +76,7 @@ skill 正文只写自己交付什么。点名别的插件只许出现在「可�
 
 ### `lean-engineer`
 
-写、改、审代码。先对大改闭清单认形，不准估小改；方案走阶梯（能不写就不写）；测试绿不能单独当做成；厚满配过质量门（复杂度 / 变异测试 / 架构约束）并开独立子代理审查。项目级能力档案为 `docs/power.md`（功能索引 + 教训），可复用功能封装在 `mymodules/` 目录。方案阶梯改写自 ponytail（署名见第 9 节）；效果有对照实验：8 工单 × 3 臂 × n=4 的 LOC 轴 + 6 任务 × 3 臂 × n=4 的 safety 轴，LOC 比裸跑 −9%，safe 率 95% 持平裸跑、显著高于一句话 YAGNI 的 70%，数据与打分器见 [`benchmark/README.md`](benchmark/README.md)。
+写、改、审代码。先对大改闭清单认形，不准估小改；方案走阶梯（能不写就不写）；测试绿不能单独当做成；厚满配过质量门（复杂度 / 变异测试 / 架构约束）并开独立子代理审查。项目级能力档案为 `docs/power.md`（功能索引 + 教训），可复用功能封装在 `mymodules/` 目录。方案阶梯改写自 ponytail（署名见第 10 节）；效果有对照实验：8 工单 × 3 臂 × n=4 的 LOC 轴 + 6 任务 × 3 臂 × n=4 的 safety 轴，LOC 比裸跑 −9%，safe 率 95% 持平裸跑、显著高于一句话 YAGNI 的 70%，数据与打分器见 [`benchmark/README.md`](benchmark/README.md)。
 
 ### `systematic-debugging`
 
@@ -100,7 +100,27 @@ skill 正文只写自己交付什么。点名别的插件只许出现在「可�
 
 ---
 
-## 5. 仓库结构
+## 5. lean-engineer 实测数据
+
+套件里唯一有对照实验撑腰的插件。216 个 cell（8 张端点工单 + 10 道对抗题，三臂各 n=4），同一模型、同一话术，唯一变量是纪律文本。题集、打分器、逐 cell 原始数据全部入库：[benchmark/](benchmark/README.md)，可复跑、可验算。
+
+| 指标 | 裸跑 | 一句话「少写点」 | lean-engineer |
+|---|---|---|---|
+| 代码量（LOC 轴合计） | 615 行 | 353 行（−43%） | 559 行（−9%） |
+| safe 率（对抗输入） | 95% | **77%** | **97%** |
+| 每工单测试量 | 42 行 | 10 行 | 34 行 |
+
+三个值得说的数字：
+
+- **一句话「follow YAGNI」的 −43% 是假节省。** 省掉的是测试、迁移和边界检查；代价是 safe 率掉 20 个点——路径穿越、空输入崩溃、写了不提交、并发重复扣款，全是真实事故形态。
+- **97% 是在不增码的前提下拿到的。** 同时认形定档 96/96 正确、红绿反验应做尽做、质量门工具缺失时 100% 如实标注「没过门」——零假绿、零谎报。
+- **并发/幂等轴专门去压它没见过的雷区**，结果 16/16 全过；反倒是裸跑被「先查后插」抓了一次。
+
+一句话定位：它是保险杠，不是涡轮——**防质量塌方，不提升质量上限**；把「少写点」会踩的雷拆掉，把「做没做完」从信任问题变成抽查问题。
+
+---
+
+## 6. 仓库结构
 
 ```
 experience-skill/
@@ -130,7 +150,7 @@ experience-skill/
 
 ---
 
-## 6. 安装
+## 7. 安装
 
 ```bash
 git clone https://github.com/Joe-zizhen/experience-skill.git ~/skills-collection
@@ -150,7 +170,7 @@ python ~/skills-collection/tools/install.py --source ~/skills-collection --host-
 
 ---
 
-## 7. 校验与发布
+## 8. 校验与发布
 
 提交前：
 
@@ -173,7 +193,7 @@ git add -A && git commit && git push
 
 ---
 
-## 8. 常见误用
+## 9. 常见误用
 
 | 误用 | 该怎样 |
 | --- | --- |
@@ -187,6 +207,6 @@ git add -A && git commit && git push
 
 ---
 
-## 9. 署名
+## 10. 署名
 
 `lean-engineer` 的方案阶梯、三档强度与输出克制约定改写自 [ponytail](https://github.com/DietrichGebert/ponytail)（MIT，Copyright (c) 2026 DietrichGebert），许可文本与改写范围见 [`lean-engineer/NOTICE`](lean-engineer/NOTICE)。其余部分（风险分档闭清单、证据格子、质量门、独立审查、编码不变量）为原创。
