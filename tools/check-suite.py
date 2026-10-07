@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """套件静态守卫（contracts/suite-v1.yaml 的执行器）。
 
-检查：frontmatter（name==目录名、description≤350 字符）、四级标签与绝对词越级、
+检查：frontmatter（name==目录名、description≤350 字符、字段仅限 name/description）、四级标签与绝对词越级、
 @latest、UTF-8 无 BOM/无替换字符、相对链接可达、LICENSE 在位、.sh 语法与执行位、
 openai.yaml 基本结构。
 
@@ -75,7 +75,7 @@ def check_frontmatter():
             err("frontmatter 缺失: " + s)
             continue
         fm = m.group(1)
-        keys = re.findall(r"^(\w+):", fm, re.M)
+        keys = re.findall(r"^([\w.\-]+)\s*:", fm, re.M)
         extra = [k for k in keys if k not in ("name", "description")]
         if extra:
             err("frontmatter 非标准字段 %s: %s" % (extra, s))
