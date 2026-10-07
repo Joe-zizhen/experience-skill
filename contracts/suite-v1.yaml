@@ -37,7 +37,7 @@ skills:
   lean-engineer:
     path: lean-engineer/
     driver: primary
-    invokes_when: [编码任务, 审查]
+    invokes_when: [编码任务, 审查, 搭建质量门禁]
   systematic-debugging:
     path: systematic-debugging/
     driver: primary

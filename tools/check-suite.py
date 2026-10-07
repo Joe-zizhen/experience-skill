@@ -75,6 +75,10 @@ def check_frontmatter():
             err("frontmatter 缺失: " + s)
             continue
         fm = m.group(1)
+        keys = re.findall(r"^(\w+):", fm, re.M)
+        extra = [k for k in keys if k not in ("name", "description")]
+        if extra:
+            err("frontmatter 非标准字段 %s: %s" % (extra, s))
         nm = re.search(r"^name:\s*(.+?)\s*$", fm, re.M)
         if not nm or nm.group(1) != s:
             err("name 与目录名不符: %s -> %s" % (s, nm.group(1) if nm else "NONE"))
