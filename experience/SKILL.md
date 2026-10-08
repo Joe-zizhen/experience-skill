@@ -100,7 +100,6 @@ description: "经验固化与检索：把重导有代价、会重现、能改变
 - **skill = 规则的权威与模板源。** 全部规则以此文件为准；到新项目时由本 skill 把短契约"播种"过去。
 - **项目短契约** = 项目侧检索纪律（入口文件里那一小段，带 schema 版本）。不复制本 skill 全文；规则升级时项目侧只需升 schema 版本号。
 - **项目经验** → 项目 `docs/experience/`：`INDEX.md`（**只**总账：索引行）+ `pitfalls.md` / `project.md` / `code.md`（条目正文）。不在 INDEX 里再写一份流程。
-- **分发与安装**：本 skill 的分发仓库是 `https://github.com/Joe-zizhen/experience-skill`，用 `tools/install.py` 安装（暂存 → 校验 → 备份 → 原子替换 → 读回校验）；直接拷贝单个 skill 目录到宿主 skills 目录亦可。
 
 ## 自清洁（定期 + 即时两个时机）[DEFAULT]
 
