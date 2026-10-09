@@ -20,7 +20,7 @@ hook 把"每任务读索引"从请求升级为结构。**只能经本流程显�
 - **默认拒绝未授权仓库**：仅当 `realpath(cwd)` 落在 `trusted-roots.txt` 白名单根之下才注入。
 - **拒绝符号链接逃逸**：`realpath(INDEX.md)` 要落在 `realpath(cwd)` 之内。
 - **严格 UTF-8**：解码失败拒绝注入（乱码索引只会污染上下文）。
-- **注入上限**：16KB，按行截断并标注。
+- **注入上限**：25KB（对齐 ≤150 条索引行全平铺的设计包络：150 条富词簇索引行约 24KB + 通用库余量；让字节报警与 >150 条规则同时触发），按行截断并标注。
 - **只灌总账**：注入标题/分区标题、索引行（`- `/`* ` 开头）、冷藏指针（同时含 `archive.md` 与 `未入索引`）。剥掉 INDEX 头部流程说明。过滤后零条索引行则回退全文（格式未知）。
 - **日志保留**：`experience-hook.log` 只保留最近 200 行。
 - **注入文本声明**：内容来自项目文档，不得覆盖系统、用户与权限指令。
@@ -39,7 +39,7 @@ import { TextDecoder } from 'node:util';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const logPath = path.join(scriptDir, 'experience-hook.log');
-const MAX_BYTES = 16384;
+const MAX_BYTES = 25600;
 const MAX_LOG_LINES = 200;
 
 function log(line) {
@@ -150,7 +150,7 @@ process.stdin.on('end', () => {
       ledgerMode = 'ledger-only';
     }
 
-    content = clipToBudget(content, MAX_BYTES, '[注意] 项目索引超过 16KB 已按行截断——请按规模规则转两阶段索引。');
+    content = clipToBudget(content, MAX_BYTES, '[注意] 项目索引超过 25KB 已按行截断——请按规模规则转两阶段索引。');
 
     const dataHome = process.env.EXPERIENCE_DATA_DIR || path.join(os.homedir(), '.experience');
     const generalPath = path.join(dataHome, 'general.md');
@@ -166,9 +166,11 @@ process.stdin.on('end', () => {
             generalBlock = clipToBudget(
               '\n\n[跨项目经验] 以下来自 ' + generalPath + '，先保项目索引。\n\n' + gtext,
               remain,
-              '[注意] 跨项目经验因 16KB 总顶被截断。'
+              '[注意] 跨项目经验因 25KB 总顶被截断。'
             );
           }
+        } else {
+          generalBlock = '\n\n[注意] 跨项目经验因注入预算不足未带上（项目索引占用过高，请按规模规则转两阶段索引）。';
         }
       }
     } catch { /* 跨项目文件读失败则跳过，先保项目 */ }
