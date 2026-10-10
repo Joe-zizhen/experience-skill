@@ -100,12 +100,13 @@ def iter_skill_md():
 def check_tiers(words):
     """绝对词只许活在当前章节档 = INV。
 
-    章节档只看标题上的 [INV]/[DEFAULT]/[HEURISTIC]。[EXAMPLE] 只管它所在那一行，
-    不改后面整节的档——否则 INV 段里插一句示例，后面的红线会全部误报越级。
+    章节档看标题上的标签；无标签标题继承更浅层级标题的档位，同级或更浅的无标签标题重置为非 INV；
+    行内单标签管到下一个标题为止；多标签图例行豁免；代码块内的 # 不是标题。
     行内 `code` 不参与绝对词扫描（指针原文、命令字面量）。
     """
     for p in iter_skill_md():
         cur = None
+        cur_level = None
         in_code = False
         in_fm = False
         fm_done = False
@@ -124,8 +125,19 @@ def check_tiers(words):
             marks = TIER_RE.findall(line)
             if len(marks) >= 2:
                 continue  # 图例/目录行（多标签并列）豁免
-            if marks and marks[0] != "EXAMPLE":
+            if not in_code and re.match(r"\s*#+", line):
+                level = len(re.match(r"\s*(#+)", line).group(1))
+                if len(marks) == 1 and marks[0] != "EXAMPLE":
+                    cur = marks[0]
+                    cur_level = level
+                elif cur_level is not None and cur_level < level:
+                    pass  # 更深无标签小节继承更浅标题的档位
+                else:
+                    cur = None
+                    cur_level = None
+            elif marks and marks[0] != "EXAMPLE":
                 cur = marks[0]
+                cur_level = None
             if in_code:
                 continue
             scanned = re.sub(r"`[^`]*`", "", line)
