@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""套件静态守卫（contracts/suite-v1.yaml 的执行器）。
+"""套件静态守卫。
 
 检查：frontmatter（name==目录名、description≤350 字符、字段仅限 name/description）、四级标签与绝对词越级、
 @latest、UTF-8 无 BOM/无替换字符、相对链接可达、LICENSE 在位、.sh 语法与执行位、
@@ -14,7 +14,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKILLS = ["experience", "lean-engineer", "systematic-debugging",
-          "5w-ledger-v1-3", "first-principle-v2", "pm", "architect",
+          "5w-ledger-v1-3", "first-principle-v2", "pm",
           "excellence"]
 TIER_RE = re.compile(r"\*?\*?\[(INV|DEFAULT|HEURISTIC|EXAMPLE)\]\*?\*?")
 TEXT_EXT = (".md", ".py", ".sh", ".yaml", ".yml", ".ts", ".toml", ".json", ".txt")
@@ -35,13 +35,8 @@ def rel(p):
 
 
 def load_abs_words():
-    with open(os.path.join(ROOT, "contracts", "suite-v1.yaml"), encoding="utf-8") as f:
-        t = f.read()
-    m = re.search(r"absolute_words:\s*\[([^\]]*)\]", t)
-    if not m:
-        err("contracts/suite-v1.yaml 缺 absolute_words")
-        return []
-    return [w.strip() for w in m.group(1).split(",") if w.strip()]
+    # 绝对词闭清单（原套件合同 absolute_words，随删除内联）
+    return ["必须", "禁止", "无豁免", "ALWAYS", "NEVER", "MUST", "不许"]
 
 
 def check_encoding():
@@ -209,50 +204,6 @@ def check_license_and_scripts():
                         err("openai.yaml 结构异常: " + rel(p))
 
 
-def check_constitution():
-    boot = os.path.join(ROOT, "contracts", "boot.md")
-    if not os.path.exists(boot):
-        err("缺 contracts/boot.md")
-    else:
-        t = open(boot, encoding="utf-8").read()
-        for s in SKILLS:
-            if s not in t:
-                err("boot.md 未点名 skill: " + s)
-        if "看起来做完了" not in t:
-            err("boot.md 未写定律")
-    readme_p = os.path.join(ROOT, "README.md")
-    readme = ""
-    if os.path.exists(readme_p):
-        readme = open(readme_p, encoding="utf-8").read()
-        if "contracts/suite-v1.yaml" not in readme:
-            err("README 未指向 contracts/suite-v1.yaml 为路由权威")
-        if "看起来做完了" not in readme:
-            err("README 未写定律")
-    suite_p = os.path.join(ROOT, "contracts", "suite-v1.yaml")
-    if not os.path.exists(suite_p):
-        err("缺 contracts/suite-v1.yaml")
-        return
-    suite = open(suite_p, encoding="utf-8").read()
-    skills_block = suite.split("skills:", 1)[-1].split("routing:", 1)[0]
-    for s in SKILLS:
-        if s + ":" not in skills_block:
-            err("suite skills 缺: " + s)
-    if "path: contracts/boot.md" not in suite.replace("\\", "/"):
-        err("suite 未登记 boot.md")
-    if "\nlaw:" not in suite and not suite.lstrip().startswith("law:"):
-        err("suite 未登记 law")
-    if "看起来做完了" not in suite:
-        err("suite law 未写定律原文")
-    if "list_death" not in suite:
-        err("suite 未写闭清单死因")
-    for s in SKILLS:
-        p = os.path.join(ROOT, s, "SKILL.md")
-        if not os.path.exists(p):
-            continue
-        body = open(p, encoding="utf-8").read()
-        if "套件定律" not in body and "suite law" not in body:
-            err("SKILL.md 未声明套件定律推论: " + s)
-
 
 PORT_HEAD = re.compile(r"^##\s+可选连通")
 H2 = re.compile(r"^##\s+")
@@ -305,7 +256,6 @@ def main():
     check_latest()
     check_links()
     check_license_and_scripts()
-    check_constitution()
     for w in warnings:
         print("WARN: " + w)
     if errors:

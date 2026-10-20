@@ -1,8 +1,8 @@
 # Myskills — 个人 AI agent skill 套件
 
-八个独立插件，给会把「看起来做完了」当目标的执行器（Claude Code、Codex 等）用。可只用一个，可搭配。**没有必须走完的流水线，也没有开机 skill。**
+七个独立插件，给会把「看起来做完了」当目标的执行器（Claude Code、Codex 等）用。可只用一个，可搭配。**没有必须走完的流水线，也没有开机 skill。**
 
-谁在什么场合用、定律原文、闭清单死因，以 [`contracts/suite-v1.yaml`](contracts/suite-v1.yaml) 为权威。本 README 是给人看的说明书，不是第二份规则。
+谁在什么场合用以第 3 节为权威；定律见第 2 节；闭清单死因在各 SKILL.md。本 README 是给人看的说明书，规则正文在各 SKILL.md。
 
 ---
 
@@ -13,7 +13,6 @@
 | 不确定 | 插件 |
 | --- | --- |
 | 还没想清要什么 | `pm` |
-| 这次改动落在哪 | `architect` |
 | 代码该怎么写 | `lean-engineer` |
 | 根因还没定 | `systematic-debugging` |
 | 事故要复盘 | `5w-ledger-v1-3` |
@@ -21,7 +20,7 @@
 | 付过的代价下次还要付 | `experience`（后台检索，不当主驱动） |
 | 输出停在不会错的中间值 | `excellence`（手动点名） |
 
-**不是：** 一条「需求 → 架构 → 编码 → 复盘」流水线；也不是第七个开机 skill。安装器写入宿主入口的是 [`contracts/boot.md`](contracts/boot.md)，只是认人条。
+**不是：** 一条「需求 → 架构 → 编码 → 复盘」流水线。
 
 对得上谁就用谁。用错了：停下，说出证据，换一个。
 
@@ -31,22 +30,21 @@
 
 **不可信执行器会把「看起来做完了」当目标。** 只许闭清单认形（不准估）、格子能核对、留下去的先问人、做成看现实。自评、散文充证据、没同意就写、没看见就声称完成——都算没做。
 
-权威文本在 `contracts/suite-v1.yaml` 的 `law`。立刻能用的推论：认形只对闭清单；硬门槛只要命令+命中/未命中；装东西、改配置、播种、删数据先问；做成看现实，不看文档写完或测试变绿；存储不是经验——不进窗口等于没有。
+立刻能用的推论：认形只对闭清单；硬门槛只要命令+命中/未命中；装东西、改配置、播种、删数据先问；做成看现实，不看文档写完或测试变绿；存储不是经验——不进窗口等于没有。
 
 规则四级：`[INV]` 违反即缺陷；`[DEFAULT]` 可覆盖；`[HEURISTIC]` 只触发复核；`[EXAMPLE]` 无规范效力。绝对化词语只许活在 `[INV]`。
 
-skill 正文只写自己交付什么。点名别的插件只许出现在「可选连通」。互斥句（这不是某某、某某归某某管）不准写。认人只活在开机卡和 suite 合同。
+skill 正文只写自己交付什么。点名别的插件只许出现在「可选连通」。互斥句（这不是某某、某某归某某管）不准写。认人只活在第 3 节。
 
 ---
 
 ## 3. 怎么认人
 
-安装后，宿主入口里会有开机卡。这一单对得上谁，就用谁：
+这一单对得上谁，就用谁：
 
 | 你的情况 | 用哪个 |
 | --- | --- |
 | 还在想要什么、要写需求或任务书 | `pm` |
-| 要找落点、要类图/时序、要动模块归属 | `architect` |
 | 已经在写、改、审代码，或要搭建质量门禁 / 变异测试 / 复杂度 / 架构约束检查 | `lean-engineer` |
 | 坏了、测不过、行为不对，根因还没定 | `systematic-debugging` |
 | 事故、多因、要复盘或交接 | `5w-ledger-v1-3` |
@@ -58,21 +56,11 @@ skill 正文只写自己交付什么。点名别的插件只许出现在「可�
 
 ---
 
-## 4. 八个插件（各管什么）
+## 4. 七个插件（各管什么）
 
 ### `pm`
 
 把想法熬成可验收的需求规格与任务书。模糊痛点自动开头脑风暴（摆方向、带市面例子、给推荐、收敛才往下）；方向关卡固定三席——值不值、能不能、装不装得下——分歧摆上台面，只问一个关键问题；多件套先出计划书（拆件、顺序、依赖、风险）。对人说大白话。需求阶段零动手。任务书点头后本 skill 停。
-
-### `architect`
-
-给这次改动找落点。交付结构，不是代码。
-
-- 底图只登记**现状**；意图只活在尚未落地的本单图纸。
-- `docs/architect/INDEX.md` 是总账，不是细架构。细的（拥有 + 进出边 + 不拥有）在详情文件。
-- 格子能核对：点名的类型必须能搜到，或标「新造（已搜未命中）」。命中 INDEX 行必须搜该行符号。
-- 播种分三批（方法，不写死某项目名单）：入口与一跳 → 主玩法（全表进出边）→ 其余（薄细：拥有 + 至少一边 + 不拥有）。每批 ≤15 行，INDEX ≤40 行。
-- 编码不切本插件为主驱动。没挂短契约必须写明：底图不会被自动读到。
 
 ### `lean-engineer`
 
@@ -138,12 +126,7 @@ skill 正文只写自己交付什么。点名别的插件只许出现在「可�
 
 ```
 experience-skill/
-├── contracts/
-│   ├── suite-v1.yaml
-│   ├── boot.md
-│   └── dark-cases.md
 ├── pm/
-├── architect/
 ├── lean-engineer/
 ├── systematic-debugging/
 ├── 5w-ledger-v1-3/
@@ -158,7 +141,7 @@ experience-skill/
 └── README.md
 ```
 
-每个插件至少有 `SKILL.md` 和 `agents/openai.yaml`。不要把整仓拷进宿主 skills 目录——走安装器，只装这八个目录 + 开机卡。
+每个插件至少有 `SKILL.md` 和 `agents/openai.yaml`。不要把整仓拷进宿主 skills 目录——走安装器，只装这七个目录。
 
 项目里的 `docs/experience/`、`docs/architect/` 不进本仓。
 
@@ -171,10 +154,10 @@ git clone https://github.com/Joe-zizhen/experience-skill.git ~/skills-collection
 python ~/skills-collection/tools/install.py --source ~/skills-collection --host-dir ~/.agents/skills
 ```
 
-| 宿主 | `--host-dir` | 开机卡 |
-| --- | --- | --- |
-| Codex / `.agents` | `~/.agents/skills` | `~/.agents/AGENTS.md` |
-| Claude Code | `~/.claude/skills` | `~/.claude/CLAUDE.md` |
+| 宿主 | `--host-dir` |
+| --- | --- |
+| Codex / `.agents` | `~/.agents/skills` |
+| Claude Code | `~/.claude/skills` |
 
 装完重启宿主。技能清单是启动缓存。
 
@@ -192,9 +175,9 @@ python ~/skills-collection/tools/install.py --source ~/skills-collection --host-
 python tools/check-suite.py
 ```
 
-检查 frontmatter、绝对词越级、可选连通外点名其他插件、UTF-8、开机卡 / README / suite 定律。退出码 0 = 全过。
+检查 frontmatter、绝对词越级、可选连通外点名其他插件、UTF-8、死链、LICENSE 与脚本。退出码 0 = 全过。
 
-暗卷见 [`contracts/dark-cases.md`](contracts/dark-cases.md)。纸面不算过。
+纸面不算过。
 
 把活副本拍回本仓会覆盖仓库，必须显式确认：
 
@@ -211,7 +194,7 @@ git add -A && git commit && git push
 
 | 误用 | 该怎样 |
 | --- | --- |
-| 八个插件当流水线每单走一遍 | 对得上谁用谁 |
+| 七个插件当流水线每单走一遍 | 对得上谁用谁 |
 | `experience` 当开工仪式 | 短契约后台检索 |
 | 仅因为难回头就套第一性原理 | 看选项是不是被类比塌缩 |
 | 改按钮文案却画全仓类图 | 读底图总账即可，不改底图 |
