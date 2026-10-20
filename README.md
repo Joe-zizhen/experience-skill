@@ -1,6 +1,6 @@
 # Myskills — 个人 AI agent skill 套件
 
-七个独立插件，给会把「看起来做完了」当目标的执行器（Claude Code、Codex 等）用。可只用一个，可搭配。**没有必须走完的流水线，也没有开机 skill。**
+七个独立插件，给会把「看起来做完了」当目标的执行器（Claude Code、Codex 等）用。可只用一个，可搭配。
 
 谁在什么场合用以第 3 节为权威；定律见第 2 节；闭清单死因在各 SKILL.md。本 README 是给人看的说明书，规则正文在各 SKILL.md。
 
