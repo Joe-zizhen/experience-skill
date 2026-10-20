@@ -2,7 +2,7 @@ NOTICE — 第三方署名
 
 本 skill（lean-engineer）的「方案阶梯」（能不写就不写 → 复用 → stdlib → 原生特性 →
 已装依赖 → 第三方库 → 一行 → 最小实现）、lite / full / ultra 三档强度、
-「懒惰的资深工程师」人设、削减留痕注释约定、输出克制（代码先行、解释最多三行）等
+削减留痕注释约定、输出克制（代码先行、解释最多三行）等
 内容改写自 ponytail（https://github.com/DietrichGebert/ponytail），原项目以 MIT
 协议发布，许可文本如下。
 
