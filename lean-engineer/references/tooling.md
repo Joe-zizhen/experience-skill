@@ -1,6 +1,6 @@
 # 各语言质量门工具速查
 
-按关卡分组。优先使用项目已有配置；以下为各生态主流选择，安装前先在 manifest / lockfile 中确认是否已存在。质量门工具直建按 SKILL.md「质量门工具直建」预授权执行；其余安装仍按「缺口必问」征得用户同意。
+按关卡分组。优先使用项目已有配置；以下为各生态主流选择，安装前先在 manifest / lockfile 中确认是否已存在。**本表是预审快捷清单，不是白名单**：缺条目或缺整个生态不构成不装理由，检索、核实、直建与回写口径见 SKILL.md「质量门工具直建」——清单靠使用增长。质量门工具直建按 SKILL.md「质量门工具直建」预授权执行；其余安装仍按「缺口必问」征得用户同意。
 
 ## JavaScript / TypeScript
 
@@ -24,7 +24,7 @@
 
 | 关卡 | 工具 | 典型命令 |
 |---|---|---|
-| 复杂度 | SonarQube / SonarLint；PMD；Checkstyle（CyclomaticComplexity） | `mvn sonar:sonar` 或 PMD ruleset |
+| 复杂度 | detekt（Kotlin 首选，Gradle 插件，ComplexMethod 等规则可配阈值）；PMD、Checkstyle（Java 侧，不解析 Kotlin）；SonarQube（服务型基础设施，不属直建）/ SonarLint（IDE 插件，不作 CI 门） | `./gradlew detekt`；`mvn pmd:check`；`mvn sonar:sonar` |
 | 测试+覆盖率 | JUnit + JaCoCo | `mvn test jacoco:report` |
 | 变异测试 | PIT (PITest)（无增量开关，用 `-DtargetClasses` 限定范围） | `mvn org.pitest:pitest-maven:mutationCoverage` |
 | 架构约束 | ArchUnit（单测形式写架构断言）、jqassistant | ArchUnit 测试随 `mvn test` 一起跑 |
