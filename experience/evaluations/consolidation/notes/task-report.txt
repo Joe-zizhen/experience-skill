@@ -1,0 +1,6 @@
+合成任务记录；时间只表示证据发生时点。
+案例E1：v1，standard，manifest=10:00:00，css-done=10:00:03，10:00:01浏览器请求返回旧CSS，10:00:04返回新CSS。
+案例E2：v2，standard，css-done=11:00:01，manifest=11:00:02，11:00:03浏览器请求返回新CSS。
+案例E3：v2，standard，css-done=12:00:04，manifest=12:00:05，12:00:06浏览器请求返回新CSS。
+案例E4：v2，workspace-link，manifest=13:00:01，css-done=13:00:06，13:00:03浏览器请求返回旧CSS，13:00:07浏览器请求返回新CSS。
+未观察CDN缓存、浏览器强制缓存或网络代理行为；以上记录无法单独确认这些因果解释。

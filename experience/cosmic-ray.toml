@@ -1,0 +1,9 @@
+# Run against an isolated copy of the repository with the quality venv on PATH.
+[cosmic-ray]
+module-path = "tools"
+timeout = 20.0
+excluded-modules = []
+test-command = "python -X utf8 -m unittest discover -s experience/tests -p test_*packaging.py"
+
+[cosmic-ray.distributor]
+name = "local"

@@ -10,6 +10,7 @@ openai.yaml 基本结构。
 import os
 import re
 import subprocess
+import shutil
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -17,7 +18,9 @@ SKILLS = ["experience", "lean-engineer", "systematic-debugging",
           "5w-ledger-v1-3", "first-principle-v2", "pm",
           "excellence"]
 TIER_RE = re.compile(r"\*?\*?\[(INV|DEFAULT|HEURISTIC|EXAMPLE)\]\*?\*?")
-TEXT_EXT = (".md", ".py", ".sh", ".yaml", ".yml", ".ts", ".toml", ".json", ".txt")
+TEXT_EXT = (".md", ".py", ".sh", ".yaml", ".yml", ".ts", ".mjs", ".toml", ".json", ".txt")
+SKIP_DIRS = {".git", "node_modules", ".stryker-tmp", "reports", "coverage",
+             ".quality-venv", ".pytest_cache", "__pycache__"}
 errors = []
 warnings = []
 
@@ -39,15 +42,23 @@ def load_abs_words():
     return ["必须", "禁止", "无豁免", "ALWAYS", "NEVER", "MUST", "不许"]
 
 
+def source_walk(root):
+    """Skip generated development artifacts, not distributed source files."""
+    for dirpath, dirs, files in os.walk(root):
+        dirs[:] = [name for name in dirs if name not in SKIP_DIRS]
+        yield dirpath, dirs, files
+
+
 def check_encoding():
-    for dirpath, _, files in os.walk(ROOT):
+    for dirpath, _, files in source_walk(ROOT):
         if ".git" in dirpath.split(os.sep):
             continue
         for fn in files:
             if not fn.endswith(TEXT_EXT) and fn not in ("LICENSE",):
                 continue
             p = os.path.join(dirpath, fn)
-            b = open(p, "rb").read()
+            with open(p, "rb") as handle:
+                b = handle.read()
             if b.startswith(b"\xef\xbb\xbf"):
                 err("BOM: " + rel(p))
             if b"\xef\xbf\xbd" in b:
@@ -86,7 +97,7 @@ def check_frontmatter():
 
 def iter_skill_md():
     for s in SKILLS:
-        for dirpath, _, files in os.walk(os.path.join(ROOT, s)):
+        for dirpath, _, files in source_walk(os.path.join(ROOT, s)):
             for fn in files:
                 if fn.endswith(".md"):
                     yield os.path.join(dirpath, fn)
@@ -142,7 +153,7 @@ def check_tiers(words):
 
 
 def check_latest():
-    for dirpath, _, files in os.walk(ROOT):
+    for dirpath, _, files in source_walk(ROOT):
         if ".git" in dirpath.split(os.sep):
             continue
         for fn in files:
@@ -151,9 +162,10 @@ def check_latest():
             p = os.path.join(dirpath, fn)
             if rel(p).startswith("tools/check-"):
                 continue  # 检查器自身必然包含该字面量（作为检查目标）
-            for i, line in enumerate(open(p, encoding="utf-8", errors="ignore"), 1):
-                if "@latest" in line and "禁" not in line:
-                    err("@latest 出现: %s:%d" % (rel(p), i))
+            with open(p, encoding="utf-8", errors="ignore") as handle:
+                for i, line in enumerate(handle, 1):
+                    if "@latest" in line and "禁" not in line:
+                        err("@latest 出现: %s:%d" % (rel(p), i))
 
 
 def check_links():
@@ -169,40 +181,56 @@ def check_links():
                     err("死链接: %s:%d -> %s" % (rel(p), i, target))
 
 
-def check_license_and_scripts():
-    if not os.path.exists(os.path.join(ROOT, "LICENSE")):
-        err("缺根 LICENSE")
-    if not os.path.exists(os.path.join(ROOT, "systematic-debugging", "LICENSE")):
-        err("缺 systematic-debugging/LICENSE")
+def _tracked_modes():
     modes = {}
     try:
-        out = subprocess.run(["git", "ls-files", "-s"], cwd=ROOT,
-                             capture_output=True, text=True).stdout
-        for line in out.splitlines():
+        output = subprocess.run(["git", "ls-files", "-s"], cwd=ROOT,
+                                capture_output=True, text=True, encoding="utf-8").stdout
+        for line in output.splitlines():
             parts = line.split(None, 3)
             if len(parts) == 4:
                 modes[parts[3]] = parts[0]
     except Exception:
         pass
-    for s in SKILLS:
-        for dirpath, _, files in os.walk(os.path.join(ROOT, s)):
-            for fn in files:
-                p = os.path.join(dirpath, fn)
-                if fn.endswith(".sh"):
-                    try:
-                        r = subprocess.run(["bash", "-n", p], capture_output=True)
-                        if r.returncode != 0:
-                            err("bash 语法错误: %s: %s" % (rel(p), r.stderr.decode("utf-8", "ignore")[:120]))
-                    except FileNotFoundError:
-                        warn("无 bash，跳过语法检查: " + rel(p))
-                    mode = modes.get(rel(p))
-                    if mode and mode != "100755":
-                        err(".sh 缺执行位(%s): %s" % (mode, rel(p)))
-                if fn == "openai.yaml":
-                    t = open(p, encoding="utf-8").read()
-                    if "interface:" not in t or "policy:" not in t:
-                        err("openai.yaml 结构异常: " + rel(p))
+    return modes
 
+
+def _check_shell_script(path, modes):
+    try:
+        executable = shutil.which("bash")
+        if executable is None:
+            raise FileNotFoundError("bash executable not found")
+        result = subprocess.run([executable, "-n", path], capture_output=True)
+        if result.returncode != 0:
+            err("bash 语法错误: %s: %s" % (rel(path), result.stderr.decode("utf-8", "ignore")[:120]))
+    except FileNotFoundError:
+        warn("无 bash，跳过语法检查: " + rel(path))
+    mode = modes.get(rel(path))
+    if mode and mode != "100755":
+        err(".sh 缺执行位(%s): %s" % (mode, rel(path)))
+
+
+def _check_openai_yaml(path):
+    with open(path, encoding="utf-8") as handle:
+        text = handle.read()
+    if "interface:" not in text or "policy:" not in text:
+        err("openai.yaml 结构异常: " + rel(path))
+
+
+def check_license_and_scripts():
+    if not os.path.exists(os.path.join(ROOT, "LICENSE")):
+        err("缺根 LICENSE")
+    if not os.path.exists(os.path.join(ROOT, "systematic-debugging", "LICENSE")):
+        err("缺 systematic-debugging/LICENSE")
+    modes = _tracked_modes()
+    for skill in SKILLS:
+        for dirpath, _, files in source_walk(os.path.join(ROOT, skill)):
+            for filename in files:
+                path = os.path.join(dirpath, filename)
+                if filename.endswith(".sh"):
+                    _check_shell_script(path, modes)
+                if filename == "openai.yaml":
+                    _check_openai_yaml(path)
 
 
 PORT_HEAD = re.compile(r"^##\s+可选连通")
