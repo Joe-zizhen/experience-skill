@@ -1,6 +1,6 @@
 # experience 文档改进与审计记录
 
-日期：2026-11-08。对象为本次工作区的文档版本；本记录描述已做工作，不是维护授权，也不是后续任务默认需要加载的规则。
+日期：2026-11-08。本记录保留该次文档修订与审计的历史事实，属于本仓库的研发文档，不属于可安装 skill 资源或用户记忆；其中“本轮”指当时的修订阶段。
 
 ## 范围与现场
 
@@ -12,19 +12,19 @@
 
 | 文件 | 变化 |
 |---|---|
-| [SKILL.md](../SKILL.md) | 预授权自主巩固、分层有界读取、三类记忆失败、真实能力边界和模板版本 |
-| [knowledge.md](knowledge.md) | 项目/通用条件、逐项来源、同源与循环引用、压缩保真及衍生内容复核 |
-| [workflows.md](workflows.md) | 累计预算、读取前限制与停止、root/scope 区别、保存及失败路径 |
-| [maintenance.md](maintenance.md) | 授权约定、触发与选题、证据比较、按风险验收、保存/恢复/通知和无后台降级 |
-| [entry-templates.md](entry-templates.md) | 同步主规则，项目 schema 13、宿主 schema 4；仅模板更新，未部署 |
-| [hook-setup.md](hook-setup.md) | 区分扫描正文与注入目录、单次输出与累计上下文；不虚称调度能力 |
-| [evaluation.md](evaluation.md) | 固定预算召回、独立样本、任务收益/总成本及三组待执行验证任务 |
-| [research-basis.md](research-basis.md) | 查证并精简为七项直接相关的一手资料，逐项给出适配限制 |
+| [SKILL.md](../../experience/SKILL.md) | 预授权自主巩固、分层有界读取、三类记忆失败、真实能力边界和模板版本 |
+| [knowledge.md](../../experience/references/knowledge.md) | 项目/通用条件、逐项来源、同源与循环引用、压缩保真及衍生内容复核 |
+| [workflows.md](../../experience/references/workflows.md) | 累计预算、读取前限制与停止、root/scope 区别、保存及失败路径 |
+| [maintenance.md](../../experience/references/maintenance.md) | 授权约定、触发与选题、证据比较、按风险验收、保存/恢复/通知和无后台降级 |
+| [entry-templates.md](../../experience/references/entry-templates.md) | 同步主规则，项目 schema 13、宿主 schema 4；仅模板更新，未部署 |
+| [hook-setup.md](../../experience/references/hook-setup.md) | 区分扫描正文与注入目录、单次输出与累计上下文；不虚称调度能力 |
+| [evaluation.md](../../experience/references/evaluation.md) | 固定预算召回、独立样本、任务收益/总成本及三组待执行验证任务 |
+| [research-basis.md](../../experience/references/research-basis.md) | 查证并精简为七项直接相关的一手资料，逐项给出适配限制 |
 | [README.md](../../README.md) | 同步用途/模板版本，区分仓库交付与宿主安装，去除含混后台说法 |
 
 ## 一手依据与设计
 
-直接读取 Anthropic 的 The components of agent memory，以及 Sleep-time Compute、LongMemEval、MemoryArena、ACE、ALCE、AgentPoison 的原始发布页/论文相关部分；题名、作者、版本日期和链接已核对。具体结论、定位和限制见[研究映射](research-basis.md)。未继续沿用旧表中未为本次规则重新核实的其他研究引用，不据此判断这些研究无效。
+直接读取 Anthropic 的 The components of agent memory，以及 Sleep-time Compute、LongMemEval、MemoryArena、ACE、ALCE、AgentPoison 的原始发布页/论文相关部分；题名、作者、版本日期和链接已核对。具体结论、定位和限制见[研究映射](../../experience/references/research-basis.md)。未继续沿用旧表中未为本次规则重新核实的其他研究引用，不据此判断这些研究无效。
 
 据此采用回源比较、逐项溯源、保留条件/例外的增量更新，并分开评估召回和后续行动。研究结果不证明本 Markdown Wiki 已有效；授权方式、默认预算和风险分档是本包工程选择。历史 96.11% 是既有代码变异检测分数，本轮未复跑，也未改称记忆正确率、召回率或任务收益。
 
@@ -53,7 +53,7 @@
 
 ## 待用户执行的验证
 
-[三组可复制任务](evaluation.md#可复制的行为验证任务待执行-default)已写明目的、步骤和验收标准：
+[三组可复制任务](../../experience/references/evaluation.md#可复制的行为验证任务待执行-default)已写明目的、步骤和验收标准：
 
 1. 三个真实独立项目：固定预算比较无记忆/旧版/新版，分别测保存覆盖、召回、无关与越界读取、正确行动及总成本。
 2. 隔离副本维护：检查预授权自主保存、来源污染、旧版本例外、只读/撤销、旧授权快照、发布冲突和恢复。
