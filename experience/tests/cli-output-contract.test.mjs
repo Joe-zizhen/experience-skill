@@ -167,3 +167,56 @@ test('limit-one pages either provide an oversized source locator or a visible bu
     });
   }
 });
+
+
+test('CLI accepts the exact byte budget and preserves a next-page entry', (t) => {
+  const root = fixture(t, {
+    'a.md': page('a', '甲'.repeat(4000)),
+    'b.md': page('b', '乙'.repeat(4500)),
+  });
+  let desired = 10000;
+  const attempts = [];
+  for (let attempt = 0; attempt < 32; attempt += 1) {
+    let exact = false;
+    withLongRoot(t, root, desired, (virtual) => {
+      const second = runCli(['catalog', '--root', virtual, '--limit', '1', '--offset', '1']);
+      const difference = budget - bytes(second.result);
+      attempts.push({ desired, actualRoot: Buffer.byteLength(virtual, 'utf8'), output: bytes(second.result), code: second.code });
+      if (second.code !== 0 || second.result.entries.length !== 1) {
+        desired = Buffer.byteLength(virtual, 'utf8') - 1;
+        return;
+      }
+      if (difference !== 0) {
+        desired = Buffer.byteLength(virtual, 'utf8') + difference;
+        return;
+      }
+      exact = true;
+      assert.equal(second.code, 0);
+      assert.deepEqual(second.result.entries.map((entry) => entry.id), ['project-a/b'], JSON.stringify(second.result));
+      const first = runCli(['catalog', '--root', virtual, '--limit', '2']);
+      assert.equal(first.code, 0);
+      assert.deepEqual(first.result.entries.map((entry) => entry.id), ['project-a/a']);
+      assert.equal(first.result.nextOffset, 1);
+      assert.deepEqual(first.result.oversizedEntries, []);
+    });
+    if (exact) return;
+  }
+  assert.fail(`Unable to construct an exact-budget page: ${JSON.stringify(attempts)}`);
+});
+
+test('diagnostic boundaries preserve context and truncate only actual overflow', (t) => {
+  const root = fixture(t, {
+    'topic.md': page('topic', 'Topic', `[missing](${'不存在'.repeat(700)}.md)`),
+  });
+  const long = runCli(['validate', '--root', root]);
+  assert.equal(long.code, 1);
+  assert.equal(long.result.errorsTruncated, 1);
+  assert.match(long.result.errors[0], /^topic\.md: unavailable link /);
+  assert.ok(Array.from(long.result.errors[0]).length < 300);
+  assert.ok(bytes(long.result) <= budget);
+  const exact = runCli(['catalog', '--root', root, 'x'.repeat(240)]);
+  assert.equal(exact.code, 1);
+  assert.equal(Array.from(exact.result.error).length, 256);
+  assert.doesNotMatch(exact.result.error, /diagnostic truncated/);
+  assert.match(exact.result.error, /^Unknown option: /);
+});

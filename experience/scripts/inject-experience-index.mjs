@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { TextDecoder } from 'node:util';
-import { catalog, readUtf8 } from './memory.mjs';
+import { catalog, readCheckedUtf8, readUtf8 } from './memory.mjs';
 
 export const MAX_OUTPUT_BYTES = 25600;
 const MAX_INPUT_BYTES = 65536;
@@ -73,8 +73,9 @@ function checkedStore(store, boundary) {
   for (const name of ['INDEX.md', 'general.md']) {
     const candidate = path.join(realStore, name);
     if (!fs.existsSync(candidate)) continue;
-    if (!underRoot(fs.realpathSync(candidate), realStore)) throw new Error('catalog-escape');
-    readUtf8(candidate);
+    const realCandidate = fs.realpathSync(candidate);
+    if (!underRoot(realCandidate, realStore)) throw new Error('catalog-escape');
+    readCheckedUtf8(realStore, realCandidate);
   }
   return realStore;
 }

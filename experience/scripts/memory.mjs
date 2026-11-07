@@ -90,6 +90,10 @@ function checkedRead(root, file, budget) {
   });
 }
 
+export function readCheckedUtf8(root, file, maxBytes = MAX_FILE_BYTES) {
+  return checkedRead(root, file, maxBytes);
+}
+
 function directoryEntries(dir, limit) {
   const handle = fs.opendirSync(dir);
   const entries = [];
@@ -407,7 +411,7 @@ export function search(root, query, options = {}) {
 
 function* links(text) {
   for (const line of visibleLines(text)) {
-    for (const match of line.replace(/`[^`]*`/g, '').matchAll(/\[[^\]]*\]\(([^\s)]+)\)/g)) yield match[1];
+    for (const match of line.replace(/`[^`]*`/g, ' ').matchAll(/\[[^\]]*\]\(([^\s)]+)\)/g)) yield match[1];
   }
 }
 

@@ -1262,3 +1262,152 @@ test('record budget returns only well-formed records after a full legacy source'
     assert.equal(typeof entry.target, 'string');
   }
 });
+
+
+test('blank Unicode root names are not accepted as implicit roots', (t) => {
+  const { base } = fixture(t);
+  const blankName = String.fromCodePoint(160);
+  fs.mkdirSync(path.join(base, blankName));
+  const previous = process.cwd();
+  try {
+    process.chdir(base);
+    assert.throws(() => catalog(blankName), /explicit root/);
+  } finally {
+    process.chdir(previous);
+  }
+});
+
+test('record incompleteness retains its reason in validation diagnostics', (t) => {
+  const { root } = fixture(t);
+  write(root, 'general.md', Array.from({ length: 513 }, (_, i) => `## card-${i}\nevidence\n`).join(''));
+  const result = validate(root);
+  assert.equal(result.valid, false);
+  assert.match(result.errors.join('\n'), /Validation incomplete: records/);
+});
+
+test('index route deduplication and rejection avoid secondary alias effects', (t) => {
+  const { root } = fixture(t);
+  write(root, 'topic.md', topic());
+  write(root, 'INDEX.md', `- [${'x'.repeat(1025)}](topic.md)\n`);
+  const oversized = catalog(root);
+  assert.match(oversized.warnings.join('\n'), /route byte budget/);
+  assert.equal(oversized.warnings.some((warning) => /Alias budget/.test(warning)), false);
+  write(root, 'INDEX.md', Array.from({ length: 600 }, () => '- duplicate → topic.md\n').join(''));
+  const deduplicated = catalog(root);
+  assert.equal(deduplicated.entries[0].aliases, 'duplicate');
+  assert.deepEqual(deduplicated.warnings, []);
+  write(root, 'INDEX.md', '- duplicate → topic.md\n');
+  write(root, 'nested/INDEX.md', '- duplicate → ../topic.md\n');
+  assert.equal(catalog(root).entries[0].aliases, 'duplicate');
+});
+
+test('search excerpts retain position-zero matches and do not invent aliases', (t) => {
+  const { root } = fixture(t);
+  write(root, 'topic.md', topic({ body: `${'x'.repeat(500)} LATERMARK` }));
+  const result = search(root, '# LATERMARK');
+  assert.equal(result.entries.length, 1);
+  assert.ok(result.entries[0].snippet.startsWith('#'));
+  assert.equal(result.entries[0].snippet.includes('LATERMARK'), false);
+  assert.equal(search(root, 'Stryker was here').entries.length, 0);
+});
+
+test('non-index arrows do not become validation references', (t) => {
+  const { root } = fixture(t);
+  write(root, 'topic.md', topic({ body: '- body-only-alias → missing.md\n' }));
+  const result = validate(root);
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.errors, []);
+});
+
+test('multiple incomplete reasons remain individually readable', (t) => {
+  const { root } = fixture(t);
+  for (let i = 0; i < 257; i += 1) {
+    write(root, `${i}/general.md`, Array.from({ length: 3 }, (_, j) => `## card-${j}\nbody\n`).join(''));
+  }
+  const result = validate(root);
+  assert.equal(result.valid, false);
+  const diagnostic = result.errors.find((error) => error.startsWith('Validation incomplete: '));
+  assert.ok(diagnostic);
+  const reasons = diagnostic.replace('Validation incomplete: ', '').split(/,\s*/).sort();
+  assert.deepEqual(reasons, ['files', 'records']);
+});
+
+
+test('multiple fragment separators cannot be folded into a different live heading', (t) => {
+  const { root } = fixture(t);
+  write(root, 'general.md', '# Cards\n## sameextra\nbody\n## same\nother\n');
+  write(root, 'INDEX.md', '- [must-not-attach](general.md#same#extra)\n');
+  const result = catalog(root);
+  assert.equal(result.entries.some((entry) => entry.aliases !== undefined), false);
+  assert.match(result.warnings.join('\n'), /unresolved index route/);
+});
+
+
+test('internal checked reads reject lexical escapes before outside metadata access', (t) => {
+  const { root, base } = fixture(t);
+  const outside = write(base, 'outside.md', topic({ body: 'OUTSIDE_CANARY' }));
+  let outsideMetadata = 0;
+  const originalLstat = fs.lstatSync;
+  t.mock.method(fs, 'lstatSync', (...args) => {
+    if (path.resolve(String(args[0])) === outside) outsideMetadata += 1;
+    return originalLstat(...args);
+  });
+  const originalOpendir = fs.opendirSync;
+  t.mock.method(fs, 'opendirSync', (directory) => {
+    if (path.resolve(directory) !== fs.realpathSync(root)) return originalOpendir(directory);
+    let read = false;
+    return {
+      readSync() {
+        if (read) return null;
+        read = true;
+        return { name: 'sub/../../outside.md', isSymbolicLink: () => false, isDirectory: () => false, isFile: () => true };
+      },
+      closeSync() {},
+    };
+  });
+  const result = validate(root);
+  assert.equal(result.valid, false);
+  assert.equal(outsideMetadata, 0);
+  assert.match(result.errors.join('\n'), /Path escapes knowledge root/);
+  assert.equal(result.errors.join('\n').includes('OUTSIDE_CANARY'), false);
+});
+
+test('Unicode line separators cannot turn fence prefixes into live fences', (t) => {
+  const { root } = fixture(t);
+  const separator = String.fromCodePoint(0x2028);
+  write(root, 'general.md', `# Cards\n${'```'}lang${separator}tail\n## visible\nbody\n`);
+  assert.deepEqual(catalog(root).entries.map((entry) => entry.title), ['visible']);
+});
+
+test('index parsing retains line starts and normalizes blank labels', (t) => {
+  const { root } = fixture(t);
+  write(root, 'topic.md', topic());
+  const separator = String.fromCodePoint(0x2028);
+  write(root, 'INDEX.md', `- prefix${separator}- alias → topic.md\n`);
+  assert.equal(catalog(root).entries[0].aliases, undefined);
+  write(root, 'INDEX.md', '-  → topic.md\n');
+  assert.equal(catalog(root).entries[0].aliases, undefined);
+});
+
+test('scheme-like substrings in local filenames retain local validation', (t) => {
+  const { root } = fixture(t);
+  write(root, 'topic.md', topic({ body: '[local](./http:notes.md)' }));
+  const candidate = path.join(fs.realpathSync(root), 'http:notes.md');
+  const originalLstat = fs.lstatSync;
+  t.mock.method(fs, 'lstatSync', (...args) => path.resolve(String(args[0])) === candidate
+    ? { isSymbolicLink: () => false } : originalLstat(...args));
+  const originalRealpath = fs.realpathSync;
+  t.mock.method(fs, 'realpathSync', (...args) => path.resolve(String(args[0])) === candidate
+    ? candidate : originalRealpath(...args));
+  const result = validate(root);
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.errors, []);
+});
+
+test('inline code cannot join surrounding text into a Markdown link', (t) => {
+  const { root } = fixture(t);
+  write(root, 'topic.md', topic({ body: '[label]`code`(missing.md)' }));
+  const result = validate(root);
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.errors, []);
+});

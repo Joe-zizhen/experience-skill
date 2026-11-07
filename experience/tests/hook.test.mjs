@@ -430,3 +430,34 @@ test('importing the hook has no CLI output or stdin side effect', () => {
   assert.equal(result.stdout, 'IMPORTED');
   assert.equal(result.stderr, '');
 });
+
+
+test('hook rejects an opened index whose identity differs from the checked file', (t) => {
+  const f = fixture(t);
+  const projectRoot = project(f, '项目A');
+  const store = path.join(projectRoot, 'docs', 'experience');
+  topic(store, 'theme', 'SAFE_CATALOG');
+  const index = fs.realpathSync(path.join(store, 'INDEX.md'));
+  const outside = path.join(f.root, 'outside.md');
+  write(outside, '# Outside\n');
+  const originalOpen = fs.openSync;
+  t.mock.method(fs, 'openSync', (file, flags, ...rest) => originalOpen(
+    path.resolve(String(file)) === index ? outside : file, flags, ...rest));
+  const layers = loadLayers(projectRoot, f.data);
+  assert.equal(layers[0].unavailable, true);
+  assert.deepEqual(layers[0].entries, []);
+});
+
+
+test('same-root index symlinks preserve other valid topics without escaping', (t) => {
+  const f = fixture(t);
+  const projectRoot = project(f, '项目A');
+  const store = path.join(projectRoot, 'docs', 'experience');
+  topic(store, 'theme', 'SAFE_CATALOG');
+  write(path.join(store, 'actual-index.md'), '# Same-root index\n');
+  fs.unlinkSync(path.join(store, 'INDEX.md'));
+  fs.symlinkSync('actual-index.md', path.join(store, 'INDEX.md'), 'file');
+  const layers = loadLayers(projectRoot, f.data);
+  assert.equal(layers[0].unavailable, false);
+  assert.deepEqual(layers[0].entries.map((entry) => entry.title), ['SAFE_CATALOG']);
+});
