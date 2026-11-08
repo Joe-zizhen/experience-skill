@@ -43,7 +43,7 @@ description: "形成、取用和维护工程记忆：把工作证据转成有范
 | 检索、形成、保存、迁移与 setup | [工作流程](references/workflows.md) 中对应模式 |
 | 纠错、案例归纳、离线巩固、主题重组 | [维护与巩固](references/maintenance.md) |
 | 安装/升级项目或宿主入口 | [入口模板](references/entry-templates.md) |
-| 明确启用/升级 hook | [hook setup](references/hook-setup.md) |
+| 明确启用/升级 hook | [通用接入契约与可选参考实现](references/hook-setup.md) |
 | 验证行为及维护效果 | [行为验收](references/evaluation.md) |
 | 核对设计依据与研究边界 | [研究映射](references/research-basis.md) |
 
@@ -108,7 +108,7 @@ description: "形成、取用和维护工程记忆：把工作证据转成有范
 
 ## setup、兼容与验证 [DEFAULT]
 
-setup 以已确认目标文件、内容和数据范围为边界。沿用 `EXPERIENCE_DATA_DIR`，缺省 `~/.experience/`；项目沿用 `docs/experience/`。项目入口 schema 13、宿主入口 schema 4 的模板见[入口模板](references/entry-templates.md)。
+setup 以已确认目标文件、内容和数据范围为边界。沿用 `EXPERIENCE_DATA_DIR`，缺省 `~/.experience/`；项目沿用 `docs/experience/`。项目入口 schema 13、宿主入口 schema 4 的模板见[入口模板](references/entry-templates.md)。可选 hook 遵循[通用契约](references/hook-setup.md)，由宿主选择触发、适配输入输出、注册并验证；Node 脚本是可复用的参考实现，不要求所有宿主采用同一事件或运行时。无 hook 能力时继续使用文本入口。
 
 旧文件继续可读，逐主题建立主要版本与证据映射；缺少库时继续当前工程任务，启用请求再进入 setup。以实际可取得的规范判断能力，技能列表未展示本体不等于文件不存在。
 
